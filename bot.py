@@ -5,6 +5,8 @@ from telegram.ext import (CallbackContext, Updater, Dispatcher, CommandHandler, 
 from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
+
+django.setup()
 from store.tasks.libgen_task import download_book
 from store.models import Book
 
@@ -38,18 +40,18 @@ def main():
     dispatcher: Dispatcher = updater.dispatcher
 
     start_handler = CommandHandler('start', Main.start)
-    menu_handler = ConversationHandler(
-        entry_points=[CommandHandler('menu', Main.menu)],
-        states={
-            settings.STATES['menu']: [
-
-            ],
-        },
-        fallbacks=[CommandHandler('menu', Main.menu)]
-    )
+    # menu_handler = ConversationHandler(
+    #     entry_points=[CommandHandler('menu', Main.menu)],
+    #     states={
+    #         settings.STATES['menu']: [
+    #
+    #         ],
+    #     },
+    #     fallbacks=[CommandHandler('menu', Main.menu)]
+    # )
 
     dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(menu_handler)
+    # dispatcher.add_handler(menu_handler)
 
     # Start the Bot
     updater.start_polling()
