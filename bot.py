@@ -19,8 +19,11 @@ class Main:
         user_id = message.from_user.id
 
         filename, content = download_book(Book.objects.get(pk=3))
+        print(filename)
         InternalService.send_info(context=context, info=filename)
+        print('info logged')
         message_id = InternalService.send_file(context=context, file=content, filename=filename)
+        print(f'{message_id}')
         from secret import TELEGRAM_WARNING_GROUP, TELEGRAM_FILES_CHANNEL
         context.bot.forward_message(chat_id=TELEGRAM_WARNING_GROUP,
                                     from_chat_id=TELEGRAM_FILES_CHANNEL,
