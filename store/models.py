@@ -145,7 +145,7 @@ class Book(models.Model):
     def download_cover(self, session: requests.Session):
         name = f'{self.slug}.{self.cover_url.split(".")[-1]}'
         content = ContentFile(session.get(self.cover_url).content, name=name)
-        self.cover.save(name=name, content=content, save=True)
+        self.cover.save(name=f'/root/Documents/book-bank/covers/{name}', content=content, save=True)
 
     def save(self, *args, **kwargs):
         if self.cover:
