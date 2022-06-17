@@ -111,8 +111,8 @@ def download_books(context):
 
     book_list = Book.objects.filter(file__isnull=True)
 
-    for book_batch in batch(book_list):
-        book_batch_len = book_batch.count(n=3)
+    for book_batch in batch(book_list, n=3):
+        book_batch_len = book_batch.count()
         with ThreadPoolExecutor() as executor:
             with requests.Session() as session:
                 executor.map(_download_book, book_batch, [session] * book_batch_len, [context] * book_batch_len)
