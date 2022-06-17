@@ -62,7 +62,7 @@ class Main:
                 id=str(uuid4()),
                 title=book.title,
                 input_message_content=InputTextMessageContent(query.upper()),
-                thumb_url=book.cover.path,
+                thumb_url=book.cover_url,
                 description=book.description
             ) for book in Book.objects.filter(document__exact=query)[:10]
         ]
