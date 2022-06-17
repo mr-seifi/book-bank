@@ -50,8 +50,7 @@ class Main:
     @staticmethod
     def download_inline(update: Update, context: CallbackContext):
         from uuid import uuid4
-        from telegram import ParseMode
-        from html import escape
+
         query = update.inline_query.query
 
         if query == "":
@@ -61,13 +60,21 @@ class Main:
             InlineQueryResultArticle(
                 id=str(uuid4()),
                 title=book.title,
-                input_message_content=InputTextMessageContent(query.upper()),
-                thumb_url=book.cover.url,
+                input_message_content=InputTextMessageContent(f'/download {book.md5}'),
+                thumb_url=book.cover_url,
                 description=book.description
             ) for book in Book.objects.filter(document__exact=query)[:10]
         ]
 
         return update.inline_query.answer(results)
+
+    @staticmethod
+    def download(update: Update, context: CallbackContext):
+        message = update.message
+        user_id = message.from_user
+
+        md5 = context.args[0]
+        InternalService.forward_file(context, Book.objects.get(md5=md5).file, user_id)
 
 
 def main():

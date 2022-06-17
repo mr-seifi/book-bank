@@ -41,9 +41,15 @@ class InternalService:
                                  to=TELEGRAM_ERROR_GROUP)
 
     @classmethod
-    async def send_file(cls, context, file, filename, thumb, description):
+    def send_file(cls, context, file, filename, thumb, description):
         return cls._send_file(context=context,
                               file=file,
                               filename=filename,
                               thumb=thumb,
                               caption=description)
+
+    @staticmethod
+    def forward_file(context, file_id, to):
+        context.bot.forward_message(chat_id=to,
+                                    from_chat_id=TELEGRAM_FILES_CHANNEL,
+                                    message_id=file_id)
