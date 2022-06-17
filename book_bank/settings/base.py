@@ -114,11 +114,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 TELEGRAM_MESSAGES = {
-    'info': 'ببینید چه خبری آوردم\n'
+    'info': 'ببینید چه خبری آوردم!\n'
             '*{info}*',
-    'warning': 'داستان داره میشه\n'
+    'warning': 'داستان داره میشه!!\n'
                '*{warning}*',
-    'error': 'اوه اوه، نگفتم داستان میشه، چ کنیم حالا؟\n'
+    'error': 'اوه اوه، نگفتم داستان میشه، چ کنیم حالا؟!!\n'
              '*{ex}*'
 }
 
