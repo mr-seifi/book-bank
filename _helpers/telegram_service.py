@@ -7,9 +7,9 @@ class InternalService:
 
     @staticmethod
     def _send_message(context, message, to):
-        context.bot.send_message(chat_id=to,
-                                 text=message,
-                                 parse_mode=ParseMode.MARKDOWN)
+        print(context.bot.send_message(chat_id=to,
+                                       text=message,
+                                       parse_mode=ParseMode.MARKDOWN))
 
     @classmethod
     def send_info(cls, context, info):
