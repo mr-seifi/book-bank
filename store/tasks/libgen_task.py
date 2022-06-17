@@ -81,7 +81,6 @@ def _download_cover(session: requests.Session, book: Book):
     name = f'{book.slug}.{book.cover_url.split(".")[-1]}'
     content = ContentFile(session.get(book.cover_url).content, name=name)
     book.cover.save(name=name, content=content, save=False)
-    print(name)
     to_download_covers.append(book)
 
     downloaded += 1
