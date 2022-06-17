@@ -77,7 +77,7 @@ def main():
         entry_points=[CommandHandler('menu', Main.menu)],
         states={
             1: [
-                InlineQueryHandler(Main.download_inline)
+
             ],
         },
         fallbacks=[CommandHandler('menu', Main.menu)]
@@ -85,6 +85,7 @@ def main():
 
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(menu_handler)
+    dispatcher.add_handler(InlineQueryHandler(Main.download_inline))
 
     # Start the Bot
     updater.start_polling()
