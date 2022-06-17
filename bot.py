@@ -84,7 +84,7 @@ def main():
     )
 
     dispatcher.add_handler(start_handler)
-    # dispatcher.add_handler(menu_handler)
+    dispatcher.add_handler(menu_handler)
 
     # Start the Bot
     updater.start_polling()
