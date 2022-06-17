@@ -94,9 +94,11 @@ def main():
         },
         fallbacks=[CommandHandler('menu', Main.menu)]
     )
+    download_handler = CommandHandler('download', Main.download)
 
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(menu_handler)
+    dispatcher.add_handler(download_handler)
     dispatcher.add_handler(InlineQueryHandler(Main.download_inline))
 
     # Start the Bot
