@@ -109,9 +109,9 @@ def _download_book(book: Book, session: requests.Session, context):
     global to_download_books
 
     print(f'[+] Download {book.title} started!')
-    content = ContentFile(session.get(book.download_url).content)
+    content = session.get(book.download_url).content
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
-    message_id = InternalService.send_file(context=context, file=content.file, filename=filename,
+    message_id = InternalService.send_file(context=context, file=content, filename=filename,
                                            thumb=book.cover, description=f'*{book.title}*\n{book.description}'[:500]
                                                                          + f'...\n\n#{book.topic}')
     book.file = message_id
