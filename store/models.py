@@ -7,6 +7,7 @@ from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.files.base import ContentFile
 import requests
+from .services.libgen_service import LibgenService
 
 
 class BookQuerySet(models.QuerySet):
@@ -143,7 +144,8 @@ class Book(models.Model):
 
     def download_cover(self, session: requests.Session):
         content = ContentFile(session.get(self.cover_url).content)
-        self.cover.save(name=f'{self.slug}.{self.cover_url.split(".")[-1]}', content=content, save=True)
+        self.cover.save(name=f'{LibgenService.get_book_identifier(self.__dict__)}'
+                             f'.{self.cover_url.split(".")[-1]}', content=content, save=True)
 
     def save(self, *args, **kwargs):
         if self.cover:
