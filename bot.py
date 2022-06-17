@@ -71,7 +71,7 @@ class Main:
     @staticmethod
     def download(update: Update, context: CallbackContext):
         message = update.message
-        user_id = message.from_user
+        user_id = message.from_user.id
 
         md5 = context.args[0]
         InternalService.forward_file(context, Book.objects.get(md5=md5).file, user_id)
