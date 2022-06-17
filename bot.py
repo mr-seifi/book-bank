@@ -60,23 +60,11 @@ class Main:
         results = [
             InlineQueryResultArticle(
                 id=str(uuid4()),
-                title="Caps",
+                title=book.title,
                 input_message_content=InputTextMessageContent(query.upper()),
-            ),
-            InlineQueryResultArticle(
-                id=str(uuid4()),
-                title="Bold",
-                input_message_content=InputTextMessageContent(
-                    f"<b>{escape(query)}</b>", parse_mode=ParseMode.HTML
-                ),
-            ),
-            InlineQueryResultArticle(
-                id=str(uuid4()),
-                title="Italic",
-                input_message_content=InputTextMessageContent(
-                    f"<i>{escape(query)}</i>", parse_mode=ParseMode.HTML
-                ),
-            ),
+                thumb_url=book.cover,
+                description=book.description
+            ) for book in Book.objects.filter(document__exact=query)[:10]
         ]
 
         return update.inline_query.answer(results)
