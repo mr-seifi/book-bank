@@ -6,6 +6,7 @@ from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
 import asyncio
+from asgiref.sync import sync_to_async
 
 django.setup()
 from store.tasks.libgen_task import download_books
@@ -15,6 +16,7 @@ from store.models import Book
 class Main:
 
     @staticmethod
+    @sync_to_async
     def start(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
