@@ -78,7 +78,7 @@ to_download_covers = []
 def _download_cover(session: requests.Session, book: Book):
     global downloaded, all_covers, to_download_covers
 
-    name = f'{book.slug}.{book.cover_url.split(".")[-1]}'
+    name = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.cover_url.split(".")[-1]}'
     content = ContentFile(session.get(book.cover_url).content, name=name)
     book.cover.save(name=name, content=content, save=False)
     to_download_covers.append(book)
