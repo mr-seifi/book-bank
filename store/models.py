@@ -143,9 +143,9 @@ class Book(models.Model):
                                             forced_update)
 
     def download_cover(self, session: requests.Session):
-        content = ContentFile(session.get(self.cover_url).content)
-        self.cover.save(name=f'{LibgenService.get_book_identifier(self.__dict__)}'
-                             f'.{self.cover_url.split(".")[-1]}', content=content, save=True)
+        name = f'{self.slug}.{self.cover_url.split(".")[-1]}'
+        content = ContentFile(session.get(self.cover_url).content, name=name)
+        self.cover.save(name=name, content=content, save=True)
 
     def save(self, *args, **kwargs):
         if self.cover:
