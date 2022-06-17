@@ -55,7 +55,7 @@ def add_books_to_database_online(limit=5000, offset=0):
             pool.starmap(_add_book, [(book,) for book in batch])
 
 
-def add_books_to_database(limit=5000, offset=0):
+def add_books_to_database(limit=30000, offset=0):
     libgen_service = LibgenService()
     global books
 
