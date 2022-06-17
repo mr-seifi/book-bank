@@ -118,5 +118,5 @@ def download_books(context):
             for book_batch in batch(book_list, n=3):
                 book_batch_len = len(book_batch)
                 executor.map(_download_book, book_batch, [session] * book_batch_len, [context] * book_batch_len)
-            Book.objects.bulk_update(to_download_books)
+            Book.objects.bulk_update(to_download_books, fields=['file'])
             to_download_books.clear()
