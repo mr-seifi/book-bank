@@ -6,6 +6,7 @@ from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
 import asyncio
+from aiohttp import ClientSession
 
 django.setup()
 from store.tasks.libgen_task import download_books
