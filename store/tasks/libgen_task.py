@@ -9,7 +9,6 @@ from concurrent.futures import ThreadPoolExecutor
 from multiprocessing.pool import Pool
 from _helpers import batch
 
-
 books = []
 
 
@@ -113,9 +112,10 @@ async def _download_book(book: Book, session, context):
     result = await session.get(book.download_url)
     content = result.content
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
-    message_id = InternalService.send_file(context=context, file=content, filename=filename,
-                                           thumb=book.cover, description=f'*{book.title}*\n{book.description}'[:500]
-                                                                         + f'...\n\n#{book.topic}')
+    message_id = await InternalService.send_file(context=context, file=content, filename=filename,
+                                                 thumb=book.cover,
+                                                 description=f'*{book.title}*\n{book.description}'[:500]
+                                                             + f'...\n\n#{book.topic}')
     book.file = message_id
 
     to_download_books.append(book)
