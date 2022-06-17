@@ -142,11 +142,6 @@ class Book(models.Model):
                                             update_fields,
                                             forced_update)
 
-    def download_cover(self, session: requests.Session):
-        name = f'{self.slug}.{self.cover_url.split(".")[-1]}'
-        content = ContentFile(session.get(self.cover_url).content, name=name)
-        self.cover.save(name=f'/root/Documents/book-bank/covers/{name}', content=content, save=True)
-
     def save(self, *args, **kwargs):
         if self.cover:
             cover_extension = self.cover.name.split('.')[-1]

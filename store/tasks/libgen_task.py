@@ -72,9 +72,17 @@ downloaded = 0
 all_covers = 0
 
 
-def _download_cover(session: requests.Session, book_id: int):
-    global downloaded, all_covers
-    Book.objects.get(pk=book_id).download_cover(session=session)
+to_download_covers = []
+
+
+def _download_cover(session: requests.Session, book: Book):
+    global downloaded, all_covers, to_download_covers
+
+    name = f'{book.slug}.{book.cover_url.split(".")[-1]}'
+    content = ContentFile(session.get(book.cover_url).content, name=name)
+    book.cover.save(name=name, content=content, save=True)
+    to_download_covers.append(book)
+
     downloaded += 1
     print(f'\rProcess: {100 * downloaded / all_covers:.2f}%', end='')
 
@@ -82,12 +90,16 @@ def _download_cover(session: requests.Session, book_id: int):
 def download_covers():
     global all_covers
     all_covers = Book.objects.filter(cover__exact='').count()
-    ids = Book.objects.filter(cover__exact='').values_list('id', flat=True)
+    book_list = Book.objects.filter(cover__exact='')
 
-    with ThreadPoolExecutor() as executor:
-        with requests.Session() as session:
-            executor.map(_download_cover, [session] * all_covers, ids)
-            executor.shutdown(wait=True)
+    for book_batch in batch(book_list, n=100):
+        book_batch_len = len(book_batch)
+        with ThreadPoolExecutor() as executor:
+            with requests.Session() as session:
+                executor.map(_download_cover, [session] * book_batch_len, book_batch)
+                executor.shutdown(wait=True)
+        Book.objects.bulk_update(book_batch, fields=['cover'])
+        to_download_covers.clear()
 
 
 to_download_books = []
