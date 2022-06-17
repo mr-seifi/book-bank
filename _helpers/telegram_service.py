@@ -10,7 +10,14 @@ class InternalService:
         result = context.bot.send_message(chat_id=to,
                                           text=message,
                                           parse_mode=ParseMode.MARKDOWN)
-        return result.get('message_id')
+        return dict(result).get('message_id')
+
+    @staticmethod
+    def _send_file(context, file, filename):
+        result = context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
+                                           document=file,
+                                           filename=filename)
+        return dict(result).get('message_id')
 
     @classmethod
     def send_info(cls, context, info):
@@ -29,13 +36,6 @@ class InternalService:
         return cls._send_message(context=context,
                                  message=settings.TELEGRAM_MESSAGES['error'].format(ex=str(error)),
                                  to=TELEGRAM_ERROR_GROUP)
-
-    @staticmethod
-    def _send_file(context, file, filename):
-        result = context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
-                                           document=file,
-                                           filename=filename)
-        return result.get('message_id')
 
     @classmethod
     def send_file(cls, context, file, filename):
