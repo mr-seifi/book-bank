@@ -96,6 +96,7 @@ to_download_books = []
 def _download_book(book: Book, session: requests.Session, context):
     global to_download_books
 
+    print(f'[+] Download {book.title} started!')
     content = ContentFile(session.get(book.download_url).content)
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
 
@@ -104,6 +105,7 @@ def _download_book(book: Book, session: requests.Session, context):
     book.file = message_id
 
     to_download_books.append(book)
+    print(f'[+] Download ended!')
 
 
 def download_books(context):
