@@ -17,7 +17,10 @@ class InternalService:
         result = context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
                                            document=file,
                                            filename=filename)
-        return dict(result).get('message_id')
+        print(result)
+        print(type(result))
+        print(result.__dict__)
+        return result.get('message_id')
 
     @classmethod
     def send_info(cls, context, info):
