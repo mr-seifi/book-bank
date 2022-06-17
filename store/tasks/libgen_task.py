@@ -1,4 +1,6 @@
 import requests
+from django.core.files.base import ContentFile
+from _helpers.telegram_service import InternalService
 from store.models import Book
 from store.services.libgen_service import LibgenService
 from concurrent.futures import ThreadPoolExecutor
@@ -84,3 +86,11 @@ def download_covers():
         with requests.Session() as session:
             executor.map(_download_cover, [session] * all_covers, ids)
             executor.shutdown(wait=True)
+
+
+def download_book(book: Book):
+
+    with requests.Session() as session:
+        content = ContentFile(session.get(book.download_url).content)
+        filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
+        return filename, content

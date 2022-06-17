@@ -155,3 +155,7 @@ class Book(models.Model):
             self.slug = slugify(f'{self.title} {self.publisher} {self.year}')
         super(Book, self).save(*args, **kwargs)
 
+
+class TelegramBook(models.Model):
+    book_id = models.ForeignKey(Book, on_delete=models.CASCADE, db_index=True)
+    message_id = models.CharField(max_length=50, db_index=True)
