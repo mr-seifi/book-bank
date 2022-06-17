@@ -110,7 +110,7 @@ async def _download_book(book: Book, session, context):
 
     print(f'[+] Download {book.title} started!')
     result = await session.get(book.download_url)
-    content = result.content
+    content = await result.read()
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
     message_id = await InternalService.send_file(context=context, file=content, filename=filename,
                                                  thumb=book.cover,
