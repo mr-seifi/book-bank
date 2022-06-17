@@ -106,7 +106,7 @@ class Book(models.Model):
     filesize = models.IntegerField(validators=[MinValueValidator(0)])
     extension = models.CharField(max_length=50, choices=Extensions.choices, default=Extensions.PDF)
     download_url = models.URLField(max_length=2000, blank=True, null=True)
-    file = models.FileField(upload_to='files', blank=True, null=True)
+    file = models.CharField(max_length=50, blank=True, null=True)
     document = SearchVectorField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
