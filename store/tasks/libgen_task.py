@@ -64,12 +64,10 @@ def add_books_to_database(limit=30000, offset=0):
             executor.map(_add_book, batch)
         try:
             Book.objects.bulk_create(books)
+            print('[+] batch created!')
         except:
             pass
-        print('[+] batch created!')
         books.clear()
-
-        print('[+] Batch looped!')
 
 
 downloaded = 0
