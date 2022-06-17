@@ -5,6 +5,8 @@ from store.models import Book
 from store.services.libgen_service import LibgenService
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing.pool import Pool
+from _helpers import batch
+
 
 books = []
 
@@ -88,9 +90,31 @@ def download_covers():
             executor.shutdown(wait=True)
 
 
-def download_book(book: Book):
+to_download_books = []
 
-    with requests.Session() as session:
-        content = ContentFile(session.get(book.download_url).content)
-        filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
-        return filename, content
+
+def _download_book(book: Book, session: requests.Session, context):
+    global to_download_books
+
+    content = ContentFile(session.get(book.download_url).content)
+    filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
+
+    message_id = InternalService.send_file(context=context, file=content, filename=filename,
+                                           thumb=book.cover, description=book.description)
+    book.file = message_id
+
+    to_download_books.append(book)
+
+
+def download_books(context):
+    global to_download_books
+
+    book_list = Book.objects.filter(file__isnull=True)
+
+    for book_batch in batch(book_list):
+        book_batch_len = book_batch.count(n=3)
+        with ThreadPoolExecutor() as executor:
+            with requests.Session() as session:
+                executor.map(_download_book, book_batch, [session] * book_batch_len, [context] * book_batch_len)
+            Book.objects.bulk_update(to_download_books)
+            to_download_books.clear()

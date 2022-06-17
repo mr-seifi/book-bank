@@ -7,7 +7,7 @@ from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
 
 django.setup()
-from store.tasks.libgen_task import download_book
+from store.tasks.libgen_task import download_books
 from store.models import Book
 
 
@@ -17,17 +17,7 @@ class Main:
     def start(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
-
-        filename, content = download_book(Book.objects.get(pk=3))
-        print(filename)
-        InternalService.send_info(context=context, info=filename)
-        print('info logged')
-        message_id = InternalService.send_file(context=context, file=content, filename=filename)
-        print(f'{message_id}')
-        from secret import TELEGRAM_WARNING_GROUP, TELEGRAM_FILES_CHANNEL
-        context.bot.forward_message(chat_id=TELEGRAM_WARNING_GROUP,
-                                    from_chat_id=TELEGRAM_FILES_CHANNEL,
-                                    message_id=message_id)
+        download_books(context)
 
     @staticmethod
     def blind_date(update: Update, context: CallbackContext):
