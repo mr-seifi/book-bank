@@ -18,7 +18,8 @@ class InternalService:
                                            document=file,
                                            filename=filename,
                                            thumb=thumb,
-                                           caption=caption)
+                                           caption=caption,
+                                           parse_mode=ParseMode.MARKDOWN)
         return result.message_id
 
     @classmethod

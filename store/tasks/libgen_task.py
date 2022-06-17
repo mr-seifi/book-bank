@@ -111,10 +111,9 @@ def _download_book(book: Book, session: requests.Session, context):
     print(f'[+] Download {book.title} started!')
     content = ContentFile(session.get(book.download_url).content)
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
-    print(filename)
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
-                                           thumb=book.cover, description=book.description)
-    print(message_id)
+                                           thumb=book.cover, description=f'*{book.title}*\n{book.description}'[:1019]
+                                                                         + '...')
     book.file = message_id
 
     to_download_books.append(book)
@@ -126,12 +125,10 @@ def download_books(context):
 
     book_list = Book.objects.filter(file__isnull=True)
 
-    for book_batch in batch(book_list, n=1):
+    for book_batch in batch(book_list, n=10):
         book_batch_len = len(book_batch)
-        # with ThreadPoolExecutor() as executor:
-        with requests.Session() as session:
-                # executor.map(_download_book, book_batch, [session] * book_batch_len, [context] * book_batch_len)
-            for book in book_batch:
-                _download_book(book, session, context)
-            Book.objects.bulk_update(to_download_books, fields=['file'])
-            to_download_books.clear()
+        with ThreadPoolExecutor() as executor:
+            with requests.Session() as session:
+                executor.map(_download_book, book_batch, [session] * book_batch_len, [context] * book_batch_len)
+        Book.objects.bulk_update(to_download_books, fields=['file'])
+        to_download_books.clear()
