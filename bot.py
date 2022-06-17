@@ -49,17 +49,34 @@ class Main:
 
     @staticmethod
     def download_inline(update: Update, context: CallbackContext):
+        from uuid import uuid4
+        from telegram import ParseMode
+        from html import escape
         query = update.inline_query.query
 
-        if not query:
+        if query == "":
             return
 
         results = [
             InlineQueryResultArticle(
-                id=str(uuid.uuid4()),
-                title='Caps',
-                input_message_content=InputTextMessageContent(query.upper())
-            )
+                id=str(uuid4()),
+                title="Caps",
+                input_message_content=InputTextMessageContent(query.upper()),
+            ),
+            InlineQueryResultArticle(
+                id=str(uuid4()),
+                title="Bold",
+                input_message_content=InputTextMessageContent(
+                    f"<b>{escape(query)}</b>", parse_mode=ParseMode.HTML
+                ),
+            ),
+            InlineQueryResultArticle(
+                id=str(uuid4()),
+                title="Italic",
+                input_message_content=InputTextMessageContent(
+                    f"<i>{escape(query)}</i>", parse_mode=ParseMode.HTML
+                ),
+            ),
         ]
 
         return update.inline_query.answer(results)
