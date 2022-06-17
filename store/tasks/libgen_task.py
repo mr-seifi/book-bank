@@ -134,6 +134,6 @@ async def download_books(context):
                                    session,
                                    context) for book in book_batch
                 ]
-            ),
+            )
         Book.objects.bulk_update(to_download_books, fields=['file'])
         to_download_books.clear()
