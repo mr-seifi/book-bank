@@ -143,11 +143,11 @@ class Book(models.Model):
                                             forced_update)
 
     def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(f'{self.title} {self.publisher} {self.year}')
         if self.cover:
             cover_extension = self.cover.name.split('.')[-1]
             self.cover.name = f'{self.slug}.{cover_extension}'
         if self.topic:
             self.topic = slugify(self.topic.replace('\\', ' '))
-        if not self.slug:
-            self.slug = slugify(f'{self.title} {self.publisher} {self.year}')
         super(Book, self).save(*args, **kwargs)
