@@ -114,6 +114,7 @@ def _download_book(book: Book, session: requests.Session, context):
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
                                            thumb=book.cover, description=f'*{book.title}*\n{book.description}'[:500]
                                                                          + f'...\n\n#{book.topic}')
+    open(filename, 'wb').write(content)
     book.file = message_id
 
     to_download_books.append(book)
