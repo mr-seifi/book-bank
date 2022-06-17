@@ -1,3 +1,5 @@
+import asyncio
+import aiohttp
 import requests
 from django.core.files.base import ContentFile
 from _helpers.telegram_service import InternalService
@@ -35,7 +37,7 @@ def _add_book(book: dict):
                     md5=book['md5'],
                     description=book.get('description', ''),
                     download_url=book.get('link', ''),
-                    cover_url=LibgenService.get_cover_url(book),)
+                    cover_url=LibgenService.get_cover_url(book), )
         books.append(book)
 
     except Exception as ex:
@@ -71,7 +73,6 @@ def add_books_to_database(limit=5000, offset=0):
 downloaded = 0
 all_covers = 0
 
-
 to_download_covers = []
 
 
@@ -105,31 +106,34 @@ def download_covers():
 to_download_books = []
 
 
-def _download_book(book: Book, session: requests.Session, context):
+async def _download_book(book: Book, session, context):
     global to_download_books
 
     print(f'[+] Download {book.title} started!')
-    content = session.get(book.download_url).content
+    content = await session.get(book.download_url).content
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
                                            thumb=book.cover, description=f'*{book.title}*\n{book.description}'[:500]
                                                                          + f'...\n\n#{book.topic}')
-    open(filename, 'wb').write(content)
     book.file = message_id
 
     to_download_books.append(book)
     print(f'[+] Download ended!')
 
 
-def download_books(context):
+async def download_books(context):
     global to_download_books
 
     book_list = Book.objects.filter(file__isnull=True)
 
-    for book_batch in batch(book_list, n=1000):
-        book_batch_len = len(book_batch)
-        with ThreadPoolExecutor() as executor:
-            with requests.Session() as session:
-                executor.map(_download_book, book_batch, [session] * book_batch_len, [context] * book_batch_len)
+    for book_batch in batch(book_list, n=100):
+        with aiohttp.ClientSession() as session:
+            await asyncio.gather(
+                *[
+                    _download_book(book,
+                                   session,
+                                   context) for book in book_batch
+                ]
+            ),
         Book.objects.bulk_update(to_download_books, fields=['file'])
         to_download_books.clear()

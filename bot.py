@@ -5,6 +5,7 @@ from telegram.ext import (CallbackContext, Updater, Dispatcher, CommandHandler, 
 from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
+import asyncio
 
 django.setup()
 from store.tasks.libgen_task import download_books
@@ -17,7 +18,7 @@ class Main:
     def start(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
-        download_books(context)
+        asyncio.run(download_books(context))
 
     @staticmethod
     def blind_date(update: Update, context: CallbackContext):
