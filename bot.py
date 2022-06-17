@@ -1,7 +1,10 @@
+import uuid
+
 import django
-from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup)
+from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle,
+                      InputTextMessageContent)
 from telegram.ext import (CallbackContext, Updater, Dispatcher, CommandHandler, ConversationHandler,
-                          CallbackQueryHandler, MessageHandler, Filters)
+                          CallbackQueryHandler, MessageHandler, Filters, InlineQueryHandler)
 from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
@@ -31,6 +34,36 @@ class Main:
         message = update.message
         user_id = message.from_user.id
 
+        keyboard = [
+            [
+                InlineKeyboardButton('دانلود', callback_data='DOWNLOAD')
+            ]
+        ]
+
+        message.reply_text(
+            'OK CLICK',
+            reply_markup=InlineKeyboardMarkup(keyboard)
+        )
+
+        return 1
+
+    @staticmethod
+    def download_inline(update: Update, context: CallbackContext):
+        query = update.inline_query.query
+
+        if not query:
+            return
+
+        results = [
+            InlineQueryResultArticle(
+                id=str(uuid.uuid4()),
+                title='Caps',
+                input_message_content=InputTextMessageContent(query.upper())
+            )
+        ]
+
+        return update.inline_query.answer(results)
+
 
 def main():
     updater = Updater(token=TELEGRAM_BOT_TOKEN,
@@ -40,15 +73,15 @@ def main():
     dispatcher: Dispatcher = updater.dispatcher
 
     start_handler = CommandHandler('start', Main.start)
-    # menu_handler = ConversationHandler(
-    #     entry_points=[CommandHandler('menu', Main.menu)],
-    #     states={
-    #         settings.STATES['menu']: [
-    #
-    #         ],
-    #     },
-    #     fallbacks=[CommandHandler('menu', Main.menu)]
-    # )
+    menu_handler = ConversationHandler(
+        entry_points=[CommandHandler('menu', Main.menu)],
+        states={
+            1: [
+                InlineQueryHandler(Main.download_inline)
+            ],
+        },
+        fallbacks=[CommandHandler('menu', Main.menu)]
+    )
 
     dispatcher.add_handler(start_handler)
     # dispatcher.add_handler(menu_handler)

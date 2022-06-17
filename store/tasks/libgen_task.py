@@ -92,7 +92,7 @@ def download_covers():
     all_covers = Book.objects.filter(cover__exact='').count()
     book_list = Book.objects.filter(cover__exact='')
 
-    for book_batch in batch(book_list, n=100):
+    for book_batch in batch(book_list, n=50):
         book_batch_len = len(book_batch)
         with ThreadPoolExecutor() as executor:
             with requests.Session() as session:
@@ -127,7 +127,7 @@ async def download_books(context):
 
     book_list = Book.objects.filter(file__isnull=True)
 
-    for book_batch in batch(book_list, n=5):
+    for book_batch in batch(book_list, n=3):
         async with aiohttp.ClientSession() as session:
             await asyncio.gather(
                 *[
