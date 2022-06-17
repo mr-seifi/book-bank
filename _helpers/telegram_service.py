@@ -10,6 +10,9 @@ class InternalService:
         result = context.bot.send_message(chat_id=to,
                                           text=message,
                                           parse_mode=ParseMode.MARKDOWN)
+        print(result)
+        print(type(result))
+        print(result.__dict__)
         return dict(result).get('message_id')
 
     @staticmethod
@@ -17,9 +20,6 @@ class InternalService:
         result = context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
                                            document=file,
                                            filename=filename)
-        print(result)
-        print(type(result))
-        print(result.__dict__)
         return result.get('message_id')
 
     @classmethod
