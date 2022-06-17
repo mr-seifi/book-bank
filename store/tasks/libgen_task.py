@@ -127,7 +127,7 @@ async def download_books(context):
 
     book_list = Book.objects.filter(file__isnull=True)
 
-    for book_batch in batch(book_list, n=100):
+    for book_batch in batch(book_list, n=2):
         async with aiohttp.ClientSession() as session:
             await asyncio.gather(
                 *[
