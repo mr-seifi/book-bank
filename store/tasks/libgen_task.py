@@ -62,7 +62,10 @@ def add_books_to_database(limit=30000, offset=0):
     for batch in libgen_service.read_book_from_mysql(limit=limit, offset=offset):
         with ThreadPoolExecutor() as executor:
             executor.map(_add_book, batch)
-        Book.objects.bulk_create(books)
+        try:
+            Book.objects.bulk_create(books)
+        except:
+            pass
         print('[+] batch created!')
         books.clear()
 
