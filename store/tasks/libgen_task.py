@@ -90,7 +90,7 @@ def _download_cover(session: requests.Session, book: Book):
 
 def download_covers():
     global all_covers
-    n = 100
+    n = 200
     all_covers = n
     book_list = Book.objects.filter(cover__exact='')[:n]
 
@@ -103,7 +103,6 @@ def download_covers():
             executor.shutdown(wait=True)
         Book.objects.bulk_update(book_list, fields=['cover'])
         to_download_covers.clear()
-    return download_covers()
 
 
 to_download_books = []
