@@ -63,7 +63,7 @@ class Main:
                 input_message_content=InputTextMessageContent(f'/download {book.md5}'),
                 thumb_url=book.cover_url,
                 description=book.description
-            ) for book in Book.objects.filter(document__exact=query).order_by('-document')[:25]
+            ) for book in Book.objects.filter(document__exact=query).order_by('document')[:25]
         ]
 
         return update.inline_query.answer(results)
