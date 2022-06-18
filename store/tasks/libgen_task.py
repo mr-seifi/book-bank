@@ -93,14 +93,16 @@ def download_covers():
     all_covers = Book.objects.filter(cover__exact='').count()
     book_list = Book.objects.filter(cover__exact='')
 
-    for book_batch in batch(book_list, n=50):
-        book_batch_len = len(book_batch)
-        with ThreadPoolExecutor() as executor:
-            with requests.Session() as session:
-                executor.map(_download_cover, [session] * book_batch_len, book_batch)
-                executor.shutdown(wait=True)
-        Book.objects.bulk_update(book_batch, fields=['cover'])
+    if not book_list:
+        return
+
+    with ThreadPoolExecutor() as executor:
+        with requests.Session() as session:
+            executor.map(_download_cover, [session] * all_covers, book_list[:100])
+            executor.shutdown(wait=True)
+        Book.objects.bulk_update(book_list, fields=['cover'])
         to_download_covers.clear()
+    return download_covers()
 
 
 to_download_books = []
