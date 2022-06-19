@@ -108,21 +108,29 @@ def download_covers():
 to_download_books = []
 
 
-async def _download_book(book: Book, session, context):
+async def _download_book(book: Book, session, context, bulk=False):
     global to_download_books
 
     print(f'[+] Download {book.title} started!')
     result = await session.get(book.download_url)
     content = await result.read()
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
+
+    cover_name, cover = await LibgenService.download_cover(book, session)
     message_id = await InternalService.send_file(context=context, file=content, filename=filename,
-                                                 thumb=book.cover,
+                                                 thumb=cover,
                                                  description=f'*{book.title}*\n{book.description}'[:500]
                                                              + f'...\n\n#{book.topic}')
     book.file = message_id
 
-    to_download_books.append(book)
+    if bulk:
+        to_download_books.append(book)
+    else:
+        book.save()
+
     print(f'[+] Download ended!')
+
+    return message_id
 
 
 async def download_books(context):
@@ -136,8 +144,21 @@ async def download_books(context):
                 *[
                     _download_book(book,
                                    session,
-                                   context) for book in book_batch
+                                   context,
+                                   True) for book in book_batch
                 ]
             )
         Book.objects.bulk_update(to_download_books, fields=['file'])
         to_download_books.clear()
+
+
+async def send_book(book: Book, context, user_id):
+    if book.file:
+        message_id = book.file
+    else:
+        async with aiohttp.ClientSession() as session:
+            message_id = await _download_book(book, session, context)
+
+    InternalService.forward_file(context=context,
+                                 file_id=message_id,
+                                 to=user_id)

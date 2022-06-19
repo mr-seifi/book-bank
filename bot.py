@@ -12,7 +12,7 @@ import asyncio
 from aiohttp import ClientSession
 
 django.setup()
-from store.tasks.libgen_task import download_books
+from store.tasks.libgen_task import send_book
 from store.models import Book
 
 
@@ -74,7 +74,8 @@ class Main:
         user_id = message.from_user.id
 
         md5 = context.args[0]
-        InternalService.forward_file(context, Book.objects.get(md5=md5).file, user_id)
+        book = Book.objects.get(md5=md5)
+        asyncio.create_task(send_book(book, context, user_id))
 
 
 def main():
