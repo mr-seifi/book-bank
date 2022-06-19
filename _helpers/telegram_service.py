@@ -16,10 +16,9 @@ class InternalService:
     def _send_file(context, file, filename, thumb, caption):
         result = context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
                                            document=file,
-                                           filename=filename.replace('_', '-').replace('*', ''),
+                                           filename=filename,
                                            thumb=thumb,
-                                           caption=caption.replace('_', '-').replace('*', ''),
-                                           parse_mode=ParseMode.MARKDOWN)
+                                           caption=caption)
         return result.message_id
 
     @classmethod
