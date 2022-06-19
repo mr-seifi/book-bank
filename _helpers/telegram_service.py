@@ -13,13 +13,13 @@ class InternalService:
         return result.message_id
 
     @staticmethod
-    def _send_file(context, file, filename, thumb, caption):
-        result = context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
-                                           document=file,
-                                           filename=filename,
-                                           thumb=thumb,
-                                           caption=caption,
-                                           parse_mode=ParseMode.MARKDOWN)
+    async def _send_file(context, file, filename, thumb, caption):
+        result = await context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
+                                                 document=file,
+                                                 filename=filename,
+                                                 thumb=thumb,
+                                                 caption=caption,
+                                                 parse_mode=ParseMode.MARKDOWN)
         return result.message_id
 
     @classmethod
