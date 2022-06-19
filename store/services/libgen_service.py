@@ -189,6 +189,6 @@ class LibgenService:
     async def download_cover(book, session):
         name = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.cover_url.split(".")[-1]}'
         response = await session.get(book.cover_url)
-        content = await response.content
+        content = await response.read()
 
         return name, content
