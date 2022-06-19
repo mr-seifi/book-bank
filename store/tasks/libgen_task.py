@@ -120,7 +120,14 @@ async def _download_book(book: Book, session, context, bulk=False):
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
 
     if not book.cover:
-        _download_cover(session, book)
+        name = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.cover_url.split(".")[-1]}'
+        content = ContentFile(session.get(book.cover_url).content, name=name)
+        book.cover.save(name=name, content=content, save=False)
+        if bulk:
+            to_download_covers.append(book)
+        else:
+            book.save()
+
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
                                            thumb=book.cover,
                                            description=f'*{book.title}*\n{book.description}'[:500]
