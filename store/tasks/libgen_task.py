@@ -120,7 +120,7 @@ async def _download_book(book: Book, session, context, bulk=False):
     content = await result.read()
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
     if not book.cover or (book.cover and book.updated < settings.RELEASE_DATE):
-        cover_name, cover = LibgenService.download_cover(book, session)
+        cover_name, cover = await LibgenService.download_cover(book, session)
         book.cover.save(name=cover_name, content=content)
 
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
