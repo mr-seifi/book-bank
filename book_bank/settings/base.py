@@ -132,5 +132,5 @@ STATES = {
 
 }
 
-RELEASE_DATE = make_aware(datetime.datetime.strptime('2022-06-20 00:42:40', '%Y-%m-%d %H:%M:%S'))
+RELEASE_DATE = make_aware(datetime.datetime.strptime('2022-06-20 00:43:40', '%Y-%m-%d %H:%M:%S'))
 
