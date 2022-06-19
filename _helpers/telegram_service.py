@@ -13,13 +13,13 @@ class InternalService:
         return result.message_id
 
     @staticmethod
-    async def _send_file(context, file, filename, thumb, caption):
-        result = await context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
-                                                 document=file,
-                                                 filename=filename,
-                                                 thumb=thumb,
-                                                 caption=caption,
-                                                 parse_mode=ParseMode.MARKDOWN)
+    def _send_file(context, file, filename, thumb, caption):
+        result = context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
+                                           document=file,
+                                           filename=filename,
+                                           thumb=thumb,
+                                           caption=caption,
+                                           parse_mode=ParseMode.MARKDOWN)
         return result.message_id
 
     @classmethod
@@ -41,16 +41,16 @@ class InternalService:
                                  to=TELEGRAM_ERROR_GROUP)
 
     @classmethod
-    async def send_file(cls, context, file, filename, thumb, description):
-        response = await cls._send_file(context=context,
-                                        file=file,
-                                        filename=filename,
-                                        thumb=thumb,
-                                        caption=description)
+    def send_file(cls, context, file, filename, thumb, description):
+        response = cls._send_file(context=context,
+                                  file=file,
+                                  filename=filename,
+                                  thumb=thumb,
+                                  caption=description)
         return response
 
     @staticmethod
-    async def forward_file(context, file_id, to):
-        await context.bot.forward_message(chat_id=to,
-                                          from_chat_id=TELEGRAM_FILES_CHANNEL,
-                                          message_id=file_id)
+    def forward_file(context, file_id, to):
+        context.bot.forward_message(chat_id=to,
+                                    from_chat_id=TELEGRAM_FILES_CHANNEL,
+                                    message_id=file_id)
