@@ -89,7 +89,7 @@ def _download_cover(session: requests.Session, book: Book, bulk=False):
         book.cover.save(name=name, content=content, save=True)
     print(book.cover)
     downloaded += 1
-    print(f'\rProcess: {100 * downloaded / all_covers:.2f}%', end='')
+    # print(f'\rProcess: {100 * downloaded / all_covers:.2f}%', end='')
 
 
 def download_covers():
