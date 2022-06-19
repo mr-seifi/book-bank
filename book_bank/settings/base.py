@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import datetime
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -131,4 +131,4 @@ STATES = {
 
 }
 
-RELEASE_DATE = '2022-06-20 00:28:40'
+RELEASE_DATE = datetime.datetime.strptime('2022-06-20 00:28:40', '%Y-%m-%d %H:%M:%S')
