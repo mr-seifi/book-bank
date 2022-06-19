@@ -77,7 +77,7 @@ class Main:
         book = Book.objects.get(md5=md5)
         task = asyncio.create_task(send_book(book, context, user_id))
 
-        message.reply_text(
+        await message.reply_text(
             settings.TELEGRAM_MESSAGES['waiting_for_download']
         )
 
