@@ -118,7 +118,7 @@ async def _download_book(book: Book, session, context, bulk=False):
 
     cover_name, cover = await LibgenService.download_cover(book, session)
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
-                                           thumb=cover,
+                                           # thumb=cover,
                                            description=f'*{book.title}*\n{book.description}'[:500]
                                                        + f'...\n\n#{book.topic}\n@BookBank_RoBot')
     book.file = message_id
