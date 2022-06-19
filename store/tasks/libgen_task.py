@@ -8,6 +8,7 @@ from store.services.libgen_service import LibgenService
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing.pool import Pool
 from _helpers import batch
+from django.conf import settings
 
 books = []
 
@@ -118,6 +119,8 @@ async def _download_book(book: Book, session, context, bulk=False):
     result = await session.get(book.download_url)
     content = await result.read()
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
+    if not book.cover or (book.cover and book.updated < settings.RELEASE_DATE):
+        _download_cover(session, book)
 
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
                                            thumb=book.cover,
@@ -161,11 +164,6 @@ async def send_book(md5: str, context, user_id):
         message_id = book.file
     else:
         async with aiohttp.ClientSession() as session:
-            if not book.cover:
-                if not book.cover:
-                    cover_name, cover = await LibgenService.download_cover(book, session)
-                    book.cover.save(name=cover_name, content=cover)
-            print(book.cover)
             message_id = await _download_book(book, session, context)
 
     await InternalService.forward_file(context=context,
