@@ -49,7 +49,7 @@ class InternalService:
                               caption=description)
 
     @staticmethod
-    def forward_file(context, file_id, to):
-        context.bot.forward_message(chat_id=to,
-                                    from_chat_id=TELEGRAM_FILES_CHANNEL,
-                                    message_id=file_id)
+    async def forward_file(context, file_id, to):
+        await context.bot.forward_message(chat_id=to,
+                                          from_chat_id=TELEGRAM_FILES_CHANNEL,
+                                          message_id=file_id)
