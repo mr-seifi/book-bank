@@ -76,13 +76,16 @@ all_covers = 0
 to_download_covers = []
 
 
-def _download_cover(session: requests.Session, book: Book):
+def _download_cover(session: requests.Session, book: Book, bulk=False):
     global downloaded, all_covers, to_download_covers
 
     name = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.cover_url.split(".")[-1]}'
     content = ContentFile(session.get(book.cover_url).content, name=name)
     book.cover.save(name=name, content=content, save=False)
-    to_download_covers.append(book)
+    if bulk:
+        to_download_covers.append(book)
+    else:
+        book.save()
 
     downloaded += 1
     print(f'\rProcess: {100 * downloaded / all_covers:.2f}%', end='')
@@ -99,7 +102,7 @@ def download_covers():
 
     with ThreadPoolExecutor() as executor:
         with requests.Session() as session:
-            executor.map(_download_cover, [session] * n, book_list)
+            executor.map(_download_cover, [session] * n, book_list, [True] * n)
             executor.shutdown(wait=True)
         Book.objects.bulk_update(book_list, fields=['cover'])
         to_download_covers.clear()
