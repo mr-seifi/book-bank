@@ -69,13 +69,19 @@ class Main:
         return update.inline_query.answer(results)
 
     @staticmethod
-    def download(update: Update, context: CallbackContext):
+    async def download(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
 
         md5 = context.args[0]
         book = Book.objects.get(md5=md5)
-        asyncio.run(send_book(book, context, user_id))
+        task = asyncio.create_task(send_book(book, context, user_id))
+
+        message.reply_text(
+            settings.TELEGRAM_MESSAGES['waiting_for_download']
+        )
+
+        await task
 
 
 def main():

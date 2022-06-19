@@ -119,7 +119,8 @@ TELEGRAM_MESSAGES = {
     'warning': 'داستان داره میشه!!\n'
                '*{warning}*',
     'error': 'اوه اوه، نگفتم داستان میشه، چ کنیم حالا؟!!\n'
-             '*{ex}*'
+             '*{ex}*',
+    'waiting_for_download': 'چند لحظه صبر کن ببینم می‌تونم پیداش کنم یا نه.'
 }
 
 TELEGRAM_BUTTONS = {
