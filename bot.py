@@ -69,7 +69,7 @@ class Main:
         return update.inline_query.answer(results)
 
     @staticmethod
-    async def download(update: Update, context: CallbackContext):
+    def download(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
 
