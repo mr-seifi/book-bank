@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import datetime
 from pathlib import Path
+from django.utils.timezone import make_aware
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -131,4 +132,5 @@ STATES = {
 
 }
 
-RELEASE_DATE = datetime.datetime.strptime('2022-06-20 00:28:40', '%Y-%m-%d %H:%M:%S')
+RELEASE_DATE = make_aware(datetime.datetime.strptime('2022-06-20 00:28:40', '%Y-%m-%d %H:%M:%S'))
+
