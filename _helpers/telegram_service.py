@@ -41,12 +41,13 @@ class InternalService:
                                  to=TELEGRAM_ERROR_GROUP)
 
     @classmethod
-    def send_file(cls, context, file, filename, thumb, description):
-        return cls._send_file(context=context,
-                              file=file,
-                              filename=filename,
-                              thumb=thumb,
-                              caption=description)
+    async def send_file(cls, context, file, filename, thumb, description):
+        response = await cls._send_file(context=context,
+                                        file=file,
+                                        filename=filename,
+                                        thumb=thumb,
+                                        caption=description)
+        return response
 
     @staticmethod
     async def forward_file(context, file_id, to):
