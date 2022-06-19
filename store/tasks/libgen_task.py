@@ -86,7 +86,7 @@ def _download_cover(session: requests.Session, book: Book, bulk=False):
         to_download_covers.append(book)
     else:
         book.cover.save(name=name, content=content, save=True)
-
+    print(book.cover)
     downloaded += 1
     print(f'\rProcess: {100 * downloaded / all_covers:.2f}%', end='')
 
