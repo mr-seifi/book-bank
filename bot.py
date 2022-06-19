@@ -74,13 +74,12 @@ class Main:
         user_id = message.from_user.id
 
         md5 = context.args[0]
-        book = Book.objects.get(md5=md5)
 
         message.reply_text(
             settings.TELEGRAM_MESSAGES['waiting_for_download']
         )
 
-        asyncio.run(send_book(book, context, user_id))
+        asyncio.run(send_book(md5, context, user_id))
 
 
 def main():

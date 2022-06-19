@@ -119,10 +119,6 @@ async def _download_book(book: Book, session, context, bulk=False):
     content = await result.read()
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
 
-    if not book.cover:
-        cover_name, cover = await LibgenService.download_cover(book, session)
-        book.cover.save(name=cover_name, content=cover)
-    print(book.cover)
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
                                            thumb=book.cover,
                                            description=f'*{book.title}*\n{book.description}'[:500]
@@ -158,11 +154,18 @@ async def download_books(context):
         to_download_books.clear()
 
 
-async def send_book(book: Book, context, user_id):
+async def send_book(md5: str, context, user_id):
+    book = Book.objects.get(md5=md5)
+
     if book.file:
         message_id = book.file
     else:
         async with aiohttp.ClientSession() as session:
+            if not book.cover:
+                if not book.cover:
+                    cover_name, cover = await LibgenService.download_cover(book, session)
+                    book.cover.save(name=cover_name, content=cover)
+            print(book.cover)
             message_id = await _download_book(book, session, context)
 
     await InternalService.forward_file(context=context,
