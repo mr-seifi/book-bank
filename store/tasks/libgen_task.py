@@ -81,11 +81,11 @@ def _download_cover(session: requests.Session, book: Book, bulk=False):
 
     name = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.cover_url.split(".")[-1]}'
     content = ContentFile(session.get(book.cover_url).content, name=name)
-    book.cover.save(name=name, content=content, save=False)
     if bulk:
+        book.cover.save(name=name, content=content, save=False)
         to_download_covers.append(book)
     else:
-        book.save()
+        book.cover.save(name=name, content=content, save=True)
 
     downloaded += 1
     print(f'\rProcess: {100 * downloaded / all_covers:.2f}%', end='')
@@ -120,14 +120,7 @@ async def _download_book(book: Book, session, context, bulk=False):
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
 
     if not book.cover:
-        name = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.cover_url.split(".")[-1]}'
-        content = ContentFile(session.get(book.cover_url).content, name=name)
-        book.cover.save(name=name, content=content, save=False)
-        if bulk:
-            to_download_covers.append(book)
-        else:
-            book.save()
-
+        _download_cover(session, book)
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
                                            thumb=book.cover,
                                            description=f'*{book.title}*\n{book.description}'[:500]
