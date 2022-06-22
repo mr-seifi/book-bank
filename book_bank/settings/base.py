@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import datetime
 from pathlib import Path
+from django.utils.timezone import make_aware
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -119,7 +120,8 @@ TELEGRAM_MESSAGES = {
     'warning': 'داستان داره میشه!!\n'
                '*{warning}*',
     'error': 'اوه اوه، نگفتم داستان میشه، چ کنیم حالا؟!!\n'
-             '*{ex}*'
+             '*{ex}*',
+    'waiting_for_download': 'چند لحظه صبر کن ببینم می‌تونم پیداش کنم یا نه.'
 }
 
 TELEGRAM_BUTTONS = {
@@ -129,3 +131,6 @@ TELEGRAM_BUTTONS = {
 STATES = {
 
 }
+
+RELEASE_DATE = make_aware(datetime.datetime.strptime('2022-06-20 00:43:40', '%Y-%m-%d %H:%M:%S'))
+

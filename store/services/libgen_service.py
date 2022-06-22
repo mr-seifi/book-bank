@@ -184,3 +184,11 @@ class LibgenService:
                                       'md5': book[37],
                                       'cover_url': book[44],
                                       'topic': book[48]}, data))
+
+    @staticmethod
+    async def download_cover(book, session):
+        name = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.cover_url.split(".")[-1]}'
+        response = await session.get(book.cover_url)
+        content = await response.read()
+
+        return name, content

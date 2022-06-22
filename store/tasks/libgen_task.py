@@ -8,6 +8,7 @@ from store.services.libgen_service import LibgenService
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing.pool import Pool
 from _helpers import batch
+from django.conf import settings
 
 books = []
 
@@ -76,21 +77,26 @@ all_covers = 0
 to_download_covers = []
 
 
-def _download_cover(session: requests.Session, book: Book):
+def _download_cover(session: requests.Session, book: Book, bulk=False):
     global downloaded, all_covers, to_download_covers
 
     name = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.cover_url.split(".")[-1]}'
     content = ContentFile(session.get(book.cover_url).content, name=name)
-    book.cover.save(name=name, content=content, save=False)
-    to_download_covers.append(book)
+    if bulk:
+        book.cover.save(name=name, content=content, save=False)
+        to_download_covers.append(book)
+    else:
+        book.cover.save(name=name, content=content, save=False)
+        Book.objects.bulk_update([book], fields=['cover'])
 
+    print(book.cover)
     downloaded += 1
-    print(f'\rProcess: {100 * downloaded / all_covers:.2f}%', end='')
+    # print(f'\rProcess: {100 * downloaded / all_covers:.2f}%', end='')
 
 
 def download_covers():
     global all_covers
-    n = 100
+    n = 200
     all_covers = n
     book_list = Book.objects.filter(cover__exact='')[:n]
 
@@ -99,31 +105,39 @@ def download_covers():
 
     with ThreadPoolExecutor() as executor:
         with requests.Session() as session:
-            executor.map(_download_cover, [session] * n, book_list)
+            executor.map(_download_cover, [session] * n, book_list, [True] * n)
             executor.shutdown(wait=True)
         Book.objects.bulk_update(book_list, fields=['cover'])
         to_download_covers.clear()
-    return download_covers()
 
 
 to_download_books = []
 
 
-async def _download_book(book: Book, session, context):
+async def _download_book(book: Book, session, context, bulk=False):
     global to_download_books
 
     print(f'[+] Download {book.title} started!')
     result = await session.get(book.download_url)
     content = await result.read()
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
-    message_id = await InternalService.send_file(context=context, file=content, filename=filename,
-                                                 thumb=book.cover,
-                                                 description=f'*{book.title}*\n{book.description}'[:500]
-                                                             + f'...\n\n#{book.topic}')
+    if not book.cover or (book.cover and book.updated < settings.RELEASE_DATE):
+        _download_cover(requests.Session(), book)
+
+    message_id = InternalService.send_file(context=context, file=content, filename=filename,
+                                           thumb=book.cover,
+                                           description=f'*{book.title}*\n{book.description}'[:500]
+                                                       + f'...\n\n#{book.topic}\n@BookBank_RoBot')
     book.file = message_id
 
-    to_download_books.append(book)
+    if bulk:
+        to_download_books.append(book)
+    else:
+        book.save()
+
     print(f'[+] Download ended!')
+
+    return message_id
 
 
 async def download_books(context):
@@ -137,8 +151,23 @@ async def download_books(context):
                 *[
                     _download_book(book,
                                    session,
-                                   context) for book in book_batch
+                                   context,
+                                   True) for book in book_batch
                 ]
             )
         Book.objects.bulk_update(to_download_books, fields=['file'])
         to_download_books.clear()
+
+
+async def send_book(md5: str, context, user_id):
+    book = Book.objects.get(md5=md5)
+
+    if book.file:
+        message_id = book.file
+    else:
+        async with aiohttp.ClientSession() as session:
+            message_id = await _download_book(book, session, context)
+
+    await InternalService.forward_file(context=context,
+                                       file_id=message_id,
+                                       to=user_id)

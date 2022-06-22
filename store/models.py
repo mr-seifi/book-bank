@@ -121,6 +121,7 @@ class Book(models.Model):
             models.Index(fields=['identifier']),
             models.Index(fields=['authors']),
             models.Index(fields=['publisher']),
+            models.Index(fields=['md5']),
             GinIndex(fields=['document']),
         ]
 
