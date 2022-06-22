@@ -62,7 +62,7 @@ class Main:
                 title=book.title,
                 input_message_content=InputTextMessageContent(f'/download {book.md5}'),
                 thumb_url=book.cover_url,
-                description=f'{book.authors}\n{book.publisher}\n{book.description}'
+                description=f'{book.authors}\n{book.publisher} {book.year} {book.extension}\n{book.description}'
             ) for book in Book.objects.filter(document__exact=query).exclude(title__exact='').order_by('document')[:25]
         ]
 
