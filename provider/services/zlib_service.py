@@ -12,11 +12,11 @@ class ZLibCache(CacheService):
     LIMIT = 10
 
     def incr_limit(self, account_id):
-        return self.incr_from_redis(key=self.REDIS_KEYS['limit'].format(user_id=account_id),
+        return self.incr_from_redis(key=self.REDIS_KEYS['limit'].format(user_id=str(account_id)),
                                     ttl=self.EX)
 
     def get_limit(self, account_id):
-        return int(self.get_from_redis(key=self.REDIS_KEYS['limit'].format(user_id=account_id)).decode())
+        return int(self.get_from_redis(key=self.REDIS_KEYS['limit'].format(user_id=str(account_id))).decode())
 
     def cache_available(self, account_id):
         return self.cache_on_redis(key=self.REDIS_KEYS['available'], value=account_id, ttl=0)
@@ -64,7 +64,6 @@ class ZLibService:
         self.cookies['remix_userid'] = account.user_id
 
         ZLibCache().incr_limit(account_id=account.id)
-        print('incred')
         res = session.get(url, headers=self.headers, cookies=self.cookies)
         print(res)
         soup = BeautifulSoup(res.text, 'html.parser')
