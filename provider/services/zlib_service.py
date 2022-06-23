@@ -1,5 +1,6 @@
 from _helpers.cache_service import CacheService
 from bs4 import BeautifulSoup
+from provider.models import ZlibAccount
 
 
 class ZLibCache(CacheService):
@@ -55,11 +56,25 @@ class ZLibService:
                       'Chrome/101.0.0.0 Safari/537.36',
     }
 
-    def _fetch_download_url(self, md5: str, session):
-        from provider.models import ZlibAccount
+    @staticmethod
+    def _get_available_account():
+        service = ZLibCache()
+        account_id = service.get_available()
 
+        if account_id == '0':
+            account_id = 1
+
+        if service.get_limit(account_id) < service.LIMIT:
+            return ZlibAccount.objects.get(pk=account_id)
+
+        for account in ZlibAccount.objects.all():
+            if service.get_limit(account_id=account.id) < service.LIMIT:
+                service.cache_available(account_id=account.id)
+                return account
+
+    def _fetch_download_url(self, md5: str, session):
         url = f'{self.BASE_URL}/s/{md5.lower()}/'
-        account = ZlibAccount.get_available_account()
+        account = self._get_available_account()
         self.cookies['remix_userkey'] = account.user_key
         self.cookies['remix_userid'] = str(account.user_id)
 

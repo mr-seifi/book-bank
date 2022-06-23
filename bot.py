@@ -1,8 +1,8 @@
 import django
 from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle,
                       InputTextMessageContent)
-from telegram.ext import (CallbackContext, Updater, Dispatcher, CommandHandler, ConversationHandler,
-                          InlineQueryHandler)
+from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
+                          InlineQueryHandler, Application)
 
 from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
@@ -18,18 +18,18 @@ from provider.tasks.download_task import download_book
 class Main:
 
     @staticmethod
-    def start(update: Update, context: CallbackContext):
+    async def start(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
         # asyncio.run(download_books(context))
 
     @staticmethod
-    def blind_date(update: Update, context: CallbackContext):
+    async def blind_date(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
 
     @classmethod
-    def menu(cls, update: Update, context: CallbackContext):
+    async def menu(cls, update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
 
@@ -39,7 +39,7 @@ class Main:
             ]
         ]
 
-        message.reply_text(
+        await message.reply_text(
             'OK CLICK',
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
@@ -47,7 +47,7 @@ class Main:
         return 1
 
     @staticmethod
-    def download_inline(update: Update, context: CallbackContext):
+    async def download_inline(update: Update, context: CallbackContext):
         from uuid import uuid4
 
         query = update.inline_query.query
@@ -68,13 +68,13 @@ class Main:
         return update.inline_query.answer(results)
 
     @staticmethod
-    def download(update: Update, context: CallbackContext):
+    async def download(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
 
         md5 = context.args[0]
 
-        message.reply_text(
+        await message.reply_text(
             settings.TELEGRAM_MESSAGES['waiting_for_download']
         )
 
@@ -82,21 +82,17 @@ class Main:
 
         if book.file:
             message_id = book.file
-            InternalService.forward_file(context=context,
-                                         file_id=message_id,
-                                         to=user_id)
+            await InternalService.forward_file(context=context,
+                                               file_id=message_id,
+                                               to=user_id)
         else:
-            download_book(book, context=context, user_id=user_id)
+            await download_book(book, context=context, user_id=user_id)
 
         # asyncio.run(send_book(md5, context, user_id))
 
 
 def main():
-    updater = Updater(token=TELEGRAM_BOT_TOKEN,
-                      use_context=True)
-
-    # Get the dispatcher to register handlers
-    dispatcher: Dispatcher = updater.dispatcher
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
 
     start_handler = CommandHandler('start', Main.start)
     menu_handler = ConversationHandler(
@@ -110,18 +106,18 @@ def main():
     )
     download_handler = CommandHandler('download', Main.download)
 
-    dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(menu_handler)
-    dispatcher.add_handler(download_handler)
-    dispatcher.add_handler(InlineQueryHandler(Main.download_inline))
+    application.add_handler(start_handler)
+    application.add_handler(menu_handler)
+    application.add_handler(download_handler)
+    application.add_handler(InlineQueryHandler(Main.download_inline))
 
     # Start the Bot
-    updater.start_polling()
+    application.run_polling()
 
     # Block until you press Ctrl-C or the process receives SIGINT, SIGTERM or
     # SIGABRT. This should be used most of the time, since start_polling() is
     # non-blocking and will stop the bot gracefully
-    updater.idle()
+    application.idle()
 
 
 if __name__ == '__main__':
