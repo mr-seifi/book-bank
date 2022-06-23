@@ -14,12 +14,12 @@ def download_book(book: Book, context, user_id):
         _download_cover(requests.Session(), book)
 
     with requests.Session() as session:
-        # try:
-        content = zlib_service.download_book(book.md5, session)
-        # except Exception as ex:
-        #     print(ex)
-        #     result = session.get(book.download_url)
-        #     content = result.content
+        try:
+            content = zlib_service.download_book(book.md5, session)
+        except Exception as ex:
+            print(ex)
+            result = session.get(book.download_url)
+            content = result.content
 
     message_id = InternalService.send_file(context=context, file=content, filename=filename,
                                            thumb=book.cover,

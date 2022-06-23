@@ -65,6 +65,9 @@ class ZLibService:
 
         print(account.id, account.user_id, account.user_key)
         ZLibCache().incr_limit(account_id=account.id)
+        print(url)
+        print(self.headers)
+        print(self.cookies)
         res = session.get(url, headers=self.headers, cookies=self.cookies)
         print(res)
         soup = BeautifulSoup(res.text, 'html.parser')
