@@ -16,7 +16,7 @@ async def download_book(book: Book, context, user_id):
 
     async with ClientSession() as session:
         try:
-            content = zlib_service.download_book(book.md5, session)
+            content = await zlib_service.download_book(book.md5, session)
             await InternalService.send_info(context, f'Getting {filename} from ZLIB.')
         except Exception as ex:
             print(ex)
