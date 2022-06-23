@@ -16,7 +16,7 @@ class ZLibCache(CacheService):
                                     ttl=self.EX)
 
     def get_limit(self, account_id):
-        return self.get_from_redis(key=self.REDIS_KEYS['limit'].format(user_id=account_id)).decode()
+        return int(self.get_from_redis(key=self.REDIS_KEYS['limit'].format(user_id=account_id)).decode())
 
     def cache_available(self, account_id):
         return self.cache_on_redis(key=self.REDIS_KEYS['available'], value=account_id, ttl=0)
