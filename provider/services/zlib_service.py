@@ -70,5 +70,5 @@ class ZLibService:
         return soup.find('a', attrs={'class': 'btn btn-primary dlButton addDownloadedBook'})['href']
 
     def download_book(self, md5, session):
-        download_url = self._fetch_download_url(md5, session)
+        download_url = f'{self.BASE_URL}{self._fetch_download_url(md5, session)}'
         return session.get(download_url, headers=self.headers, cookies=self.cookies).content
