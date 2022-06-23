@@ -64,6 +64,7 @@ class ZLibService:
         self.cookies['remix_userkey'] = account.user_key
         self.cookies['remix_userid'] = account.user_id
 
+        ZLibCache().incr_limit(account_id=account.id)
         res = session.get(url, headers=self.headers, cookies=self.cookies)
         soup = BeautifulSoup(res.text, 'html.parser')
         return soup.find('a', attrs={'class': 'btn btn-primary dlButton addDownloadedBook'})['href']
