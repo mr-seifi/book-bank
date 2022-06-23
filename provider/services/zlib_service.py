@@ -78,14 +78,16 @@ class ZLibService:
         account = self._get_available_account()
         self.cookies['remix_userkey'] = account.user_key
         self.cookies['remix_userid'] = str(account.user_id)
-
+        print(account, self.headers, self.cookies)
         ZLibCache().incr_limit(account_id=account.id)
         res = await session.get(url, headers=self.headers, cookies=self.cookies)
         soup = BeautifulSoup(await res.text(), 'html.parser')
+        print(soup)
         return soup.find('a', attrs={'class': 'btn btn-primary dlButton addDownloadedBook'})['href']
 
     async def download_book(self, md5, session):
         download_url = f'{self.BASE_URL}{await self._fetch_download_url(md5, session)}'
+        print(download_url)
         response = await session.get(download_url, headers=self.headers, cookies=self.cookies)
         content = await response.read()
         return content
