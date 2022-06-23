@@ -7,8 +7,11 @@ class CacheService:
     def __init__(self):
         self.client: Redis = get_redis_client()
 
-    def cache_on_redis(self, key: str, value: str, ttl: int):
-        self.client.set(name=key, value=value, ex=ttl)
+    def cache_on_redis(self, key: str, value: str, ttl: int = 0):
+        if ttl:
+            self.client.set(name=key, value=value, ex=ttl)
+        else:
+            self.client.set(name=key, value=value)
 
     def get_from_redis(self, key: str):
         return self.client.get(name=key) or b'0'
