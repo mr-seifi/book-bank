@@ -88,7 +88,7 @@ class Main:
         else:
             await asyncio.create_task(download_book(book, context=context, user_id=user_id))
 
-        asyncio.create_task(send_book(md5, context, user_id))
+        # asyncio.create_task(send_book(md5, context, user_id))
 
 
 def main():
@@ -113,11 +113,6 @@ def main():
 
     # Start the Bot
     application.run_polling()
-
-    # Block until you press Ctrl-C or the process receives SIGINT, SIGTERM or
-    # SIGABRT. This should be used most of the time, since start_polling() is
-    # non-blocking and will stop the bot gracefully
-    application.idle()
 
 
 if __name__ == '__main__':

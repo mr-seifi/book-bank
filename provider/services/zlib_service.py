@@ -1,6 +1,7 @@
 from _helpers.cache_service import CacheService
 from bs4 import BeautifulSoup
 from provider.models import ZlibAccount
+from aiohttp import ClientSession
 
 
 class ZLibCache(CacheService):
@@ -72,15 +73,15 @@ class ZLibService:
                 service.cache_available(account_id=account.id)
                 return account
 
-    def _fetch_download_url(self, md5: str, session):
+    def _fetch_download_url(self, md5: str, session: ClientSession):
         url = f'{self.BASE_URL}/s/{md5.lower()}/'
         account = self._get_available_account()
         self.cookies['remix_userkey'] = account.user_key
         self.cookies['remix_userid'] = str(account.user_id)
 
         ZLibCache().incr_limit(account_id=account.id)
-        res = session.get(url, headers=self.headers, cookies=self.cookies)
-        soup = BeautifulSoup(res.text, 'html.parser')
+        res = await session.get(url, headers=self.headers, cookies=self.cookies)
+        soup = BeautifulSoup(await res.text(), 'html.parser')
         return soup.find('a', attrs={'class': 'btn btn-primary dlButton addDownloadedBook'})['href']
 
     def download_book(self, md5, session):
