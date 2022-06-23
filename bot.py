@@ -3,6 +3,8 @@ from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup, Inline
                       InputTextMessageContent)
 from telegram.ext import (CallbackContext, Updater, Dispatcher, CommandHandler, ConversationHandler,
                           InlineQueryHandler)
+
+from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
 import asyncio
@@ -76,7 +78,16 @@ class Main:
             settings.TELEGRAM_MESSAGES['waiting_for_download']
         )
 
-        download_book(Book.objects.get(md5=md5), context=context, user_id=user_id)
+        book = Book.objects.get(md5=md5)
+
+        if book.file:
+            message_id = book.file
+            InternalService.forward_file(context=context,
+                                         file_id=message_id,
+                                         to=user_id)
+        else:
+            download_book(book, context=context, user_id=user_id)
+
         # asyncio.run(send_book(md5, context, user_id))
 
 
