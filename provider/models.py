@@ -10,7 +10,8 @@ class ZlibAccount(models.Model):
     def get_available_account():
         service = ZLibCache()
         account_id = service.get_available()
-        if not account_id:
+
+        if account_id == '0':
             account_id = 1
 
         if service.get_limit(account_id) < service.LIMIT:
