@@ -55,15 +55,14 @@ class ZLibService:
                       'Chrome/101.0.0.0 Safari/537.36',
     }
 
-    def _fetch_download_url(self, md5, session):
+    def _fetch_download_url(self, md5: str, session):
         from provider.models import ZlibAccount
 
-        url = f'{self.BASE_URL}/s/{md5}/'
+        url = f'{self.BASE_URL}/s/{md5.lower()}/'
         account = ZlibAccount.get_available_account()
         self.cookies['remix_userkey'] = account.user_key
         self.cookies['remix_userid'] = str(account.user_id)
 
-        print(account.id, account.user_id, account.user_key)
         ZLibCache().incr_limit(account_id=account.id)
         res = session.get(url, headers=self.headers, cookies=self.cookies)
         soup = BeautifulSoup(res.text, 'html.parser')
