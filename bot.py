@@ -86,9 +86,9 @@ class Main:
                                                file_id=message_id,
                                                to=user_id)
         else:
-            await download_book(book, context=context, user_id=user_id)
+            await asyncio.create_task(download_book(book, context=context, user_id=user_id))
 
-        # asyncio.run(send_book(md5, context, user_id))
+        asyncio.create_task(send_book(md5, context, user_id))
 
 
 def main():
