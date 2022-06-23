@@ -10,6 +10,7 @@ class ZlibAccount(models.Model):
     def get_available_account():
         service = ZLibCache()
         account_id = service.get_available() or 1
+        print(account_id)
 
         if service.get_limit(account_id) < service.LIMIT:
             return ZlibAccount.objects.get(pk=account_id)
