@@ -70,4 +70,5 @@ class ZLibService:
 
     def download_book(self, md5, session):
         download_url = self._fetch_download_url(md5, session)
+        print(download_url)
         return session.get(download_url, headers=self.headers, cookies=self.cookies).content

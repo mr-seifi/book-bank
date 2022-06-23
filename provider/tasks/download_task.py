@@ -16,7 +16,6 @@ def download_book(book: Book, context, user_id):
     with requests.Session() as session:
         try:
             content = zlib_service.download_book(book.md5, session)
-            print('content get')
         except Exception as ex:
             print(ex)
             result = session.get(book.download_url)
