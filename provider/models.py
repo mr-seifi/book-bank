@@ -5,7 +5,7 @@ from .services.zlib_service import ZLibCache
 class ZlibAccount(models.Model):
     email = models.EmailField(max_length=100)
     password = models.CharField(max_length=50)
-    user_id = models.IntegerField(max_length=20)
+    user_id = models.IntegerField()
     user_key = models.CharField(max_length=50)
 
     @staticmethod

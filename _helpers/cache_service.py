@@ -2,7 +2,6 @@ from .redis_client import get_redis_client, Redis
 from .singleton import singleton
 
 
-@singleton
 class CacheService:
 
     def __init__(self):

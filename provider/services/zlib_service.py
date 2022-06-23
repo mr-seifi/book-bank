@@ -1,6 +1,6 @@
 from _helpers.cache_service import CacheService
-from provider.models import ZlibAccount
 from bs4 import BeautifulSoup
+
 
 
 class ZLibCache(CacheService):
@@ -57,6 +57,8 @@ class ZLibService:
     }
 
     def _fetch_download_url(self, md5, session):
+        from provider.models import ZlibAccount
+
         url = f'{self.BASE_URL}/s/{md5}/'
         account = ZlibAccount.get_available_account()
         self.cookies['remix_userkey'] = account.user_key
