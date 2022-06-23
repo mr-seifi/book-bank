@@ -2,7 +2,6 @@ from _helpers.cache_service import CacheService
 from bs4 import BeautifulSoup
 
 
-
 class ZLibCache(CacheService):
     PREFIX = 'ZLIB'
     REDIS_KEYS = {
