@@ -1,51 +1,20 @@
-from .redis_client import get_redis_client
+from .redis_client import get_redis_client, Redis
 from .singleton import singleton
 
 
 @singleton
-class BaseCacheService:
+class CacheService:
 
     def __init__(self):
-        self.client = get_redis_client()
+        self.client: Redis = get_redis_client()
 
-    def cache(self, key: str, value: str, ex: int):
-        self.client.set(name=key,
-                        value=value,
-                        ex=ex)
+    def cache_on_redis(self, key: str, value: str, ttl: int):
+        self.client.set(name=key, value=value, ex=ttl)
 
-    def get(self, key: str):
-        return self.client.get(name=key)
+    def get_from_redis(self, key: str):
+        return self.client.get(name=key) or b'0'
 
-    def cache_push(self, key: str, value: str):
-        self.client.lpush(key, value)
-
-    def len(self, key: str):
-        return self.client.llen(name=key)
-
-    def pop(self, key: str):
-        result = [value.decode() for value in self.client.lrange(key, 0, self.len(key)) if value]
-        self.client.delete(key)
-        return result
-
-
-class CacheService:
-    PREFIX = ''
-    REDIS_KEYS = {
-
-    }
-    EX = 60 * 60
-
-    @classmethod
-    def _cache(cls, key, user_id, value):
-        key = cls.REDIS_KEYS[key].format(user_id=user_id)
-        service: BaseCacheService = BaseCacheService()
-        service.cache(key=key, value=value, ex=cls.EX)
-
-    @classmethod
-    def _get(cls, key, user_id):
-        key = cls.REDIS_KEYS[key].format(user_id=user_id)
-        service: BaseCacheService = BaseCacheService()
-        result = service.get(key=key)
-        if not result:
-            raise KeyError(f'{key} key does not exist!')
-        return result.decode()
+    def incr_from_redis(self, key: str, ttl=0):
+        if ttl:
+            self.cache_on_redis(key, self.get_from_redis(key) or 0, ttl)
+        return self.client.incr(name=key)

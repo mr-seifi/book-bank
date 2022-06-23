@@ -5,9 +5,6 @@ from django.utils.functional import partition
 from django.utils.text import slugify
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
-from django.core.files.base import ContentFile
-import requests
-from .services.libgen_service import LibgenService
 
 
 class BookQuerySet(models.QuerySet):

@@ -4,7 +4,7 @@ import requests
 from django.core.files.base import ContentFile
 from _helpers.telegram_service import InternalService
 from store.models import Book
-from store.services.libgen_service import LibgenService
+from provider.services.libgen_service import LibgenService
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing.pool import Pool
 from _helpers import batch
@@ -168,6 +168,6 @@ async def send_book(md5: str, context, user_id):
         async with aiohttp.ClientSession() as session:
             message_id = await _download_book(book, session, context)
 
-    await InternalService.forward_file(context=context,
-                                       file_id=message_id,
-                                       to=user_id)
+    InternalService.forward_file(context=context,
+                                 file_id=message_id,
+                                 to=user_id)

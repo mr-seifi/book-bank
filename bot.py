@@ -1,19 +1,16 @@
-import uuid
-
 import django
 from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle,
                       InputTextMessageContent)
 from telegram.ext import (CallbackContext, Updater, Dispatcher, CommandHandler, ConversationHandler,
-                          CallbackQueryHandler, MessageHandler, Filters, InlineQueryHandler)
-from _helpers.telegram_service import InternalService
+                          InlineQueryHandler)
 from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
 import asyncio
-from aiohttp import ClientSession
 
 django.setup()
-from store.tasks.libgen_task import send_book
+from provider.tasks.libgen_task import send_book
 from store.models import Book
+from provider.tasks.download_task import download_book
 
 
 class Main:
@@ -79,7 +76,8 @@ class Main:
             settings.TELEGRAM_MESSAGES['waiting_for_download']
         )
 
-        asyncio.run(send_book(md5, context, user_id))
+        download_book(Book.objects.get(md5=md5), context=context, user_id=user_id)
+        # asyncio.run(send_book(md5, context, user_id))
 
 
 def main():
