@@ -16,8 +16,10 @@ def download_book(book: Book, context, user_id):
     with requests.Session() as session:
         try:
             content = zlib_service.download_book(book.md5, session)
+            InternalService.send_info(context, f'Getting {filename} from ZLIB.')
         except Exception as ex:
             print(ex)
+            InternalService.send_info(context, f'Getting {filename} from LIBGEN!')
             result = session.get(book.download_url)
             content = result.content
 
