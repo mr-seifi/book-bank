@@ -63,6 +63,7 @@ class ZLibService:
         self.cookies['remix_userkey'] = account.user_key
         self.cookies['remix_userid'] = account.user_id
 
+        print(account.id, account.user_id, account.user_key)
         ZLibCache().incr_limit(account_id=account.id)
         res = session.get(url, headers=self.headers, cookies=self.cookies)
         print(res)
