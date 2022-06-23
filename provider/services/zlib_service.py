@@ -60,10 +60,12 @@ class ZLibService:
 
         url = f'{self.BASE_URL}/s/{md5}/'
         account = ZlibAccount.get_available_account()
+        print(account)
         self.cookies['remix_userkey'] = account.user_key
         self.cookies['remix_userid'] = account.user_id
 
         ZLibCache().incr_limit(account_id=account.id)
+        print('incred')
         res = session.get(url, headers=self.headers, cookies=self.cookies)
         soup = BeautifulSoup(res.text, 'html.parser')
         return soup.find('a', attrs={'class': 'btn btn-primary dlButton addDownloadedBook'})['href']
