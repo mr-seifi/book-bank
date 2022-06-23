@@ -64,8 +64,8 @@ class Main:
                 description=f'{book.year}-{book.extension}\n{book.authors}\n{book.publisher}\n{book.description}'
             ) for book in Book.objects.filter(document__exact=query).exclude(title__exact='').order_by('document')[:25]
         ]
-
-        return update.inline_query.answer(results)
+        response = await update.inline_query.answer(results)
+        return response
 
     @staticmethod
     async def download(update: Update, context: CallbackContext):
