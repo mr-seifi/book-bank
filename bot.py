@@ -7,7 +7,6 @@ from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
 from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
-from asgiref.sync import sync_to_async
 import asyncio
 
 django.setup()
@@ -48,7 +47,6 @@ class Main:
         return 1
 
     @staticmethod
-    @sync_to_async
     async def download_inline(update: Update, context: CallbackContext):
         from uuid import uuid4
 
@@ -70,7 +68,6 @@ class Main:
         return response
 
     @staticmethod
-    @sync_to_async
     async def download(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
