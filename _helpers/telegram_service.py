@@ -26,6 +26,10 @@ class InternalService:
                                            document=file,
                                            filename=filename,
                                            caption=caption,
+                                           write_timeout=200,
+                                           read_timeout=200,
+                                           connection_timeout=200,
+                                           pool_timeout=200,
                                            **kwargs)
         print(response)
 
