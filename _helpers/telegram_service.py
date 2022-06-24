@@ -76,6 +76,6 @@ class InternalService:
         photo = open(photo_path)
 
         response = await context.bot.send_photo(chat_id=TELEGRAM_WARNING_GROUP,
-                                                photo=photo,
+                                                photo=photo.read(),
                                                 caption=caption)
         return response
