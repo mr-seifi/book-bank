@@ -23,7 +23,7 @@ class Main:
         message = update.message
         user_id = message.from_user.id
         # asyncio.run(download_books(context))
-        send_monitoring_data(context)
+        # send_monitoring_data(context)
         # await InternalService.send_monitoring(context=context,
         #                                       photo_path='cpu_usage.png',
         #                                       caption='CPU Usage')

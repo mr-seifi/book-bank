@@ -18,8 +18,8 @@ class HardwareView:
                                   list(map(lambda x: x.decode(), self.service.get_memory()))})
 
         sns.set_theme()
-        plot = cpu_usage.plot(title='CPU Usage', label='cpu')
-        memory_usage.plot(title='Memory Usage', label='memory')
+        plot = cpu_usage.plot(label='cpu')
+        memory_usage.plot(title='Hardware Usage', label='memory')
 
         fig = plot.get_figure()
         plot.set_xlabel('Time')

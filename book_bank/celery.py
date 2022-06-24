@@ -38,6 +38,6 @@ app.conf.beat_schedule = {
     },
     'send-hardware-monitoring': {
         'task': 'monitoring.tasks.send_monitoring_data',
-        'schedule': crontab(minute='*/2'),
+        'schedule': crontab(minute='*/5'),
     },
 }
