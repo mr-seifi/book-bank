@@ -1,6 +1,8 @@
-from secret import TELEGRAM_INFO_GROUP, TELEGRAM_WARNING_GROUP, TELEGRAM_ERROR_GROUP, TELEGRAM_FILES_CHANNEL
+from secret import TELEGRAM_INFO_GROUP, TELEGRAM_WARNING_GROUP, TELEGRAM_ERROR_GROUP, TELEGRAM_FILES_CHANNEL, \
+    TELEGRAM_BOT_TOKEN
 from telegram.constants import ParseMode
 from django.conf import settings
+from telegram import Bot
 
 
 class InternalService:
@@ -73,7 +75,14 @@ class InternalService:
 
     @staticmethod
     async def send_monitoring(context, photo_path, caption):
-        response = await context.bot.send_photo(chat_id=TELEGRAM_WARNING_GROUP,
-                                                photo=photo_path,
-                                                caption=caption)
+        if context:
+            response = await context.bot.send_photo(chat_id=TELEGRAM_WARNING_GROUP,
+                                                    photo=photo_path,
+                                                    caption=caption)
+        else:
+            bot = Bot(TELEGRAM_BOT_TOKEN).base_url('http://0.0.0.0:8081/bot')
+            response = await bot.send_photo(chat_id=TELEGRAM_WARNING_GROUP,
+                                            photo=photo_path,
+                                            caption=caption)
+
         return response

@@ -17,9 +17,15 @@ class MonitoringCacheService(CacheService):
     def get_cpu(self):
         return self.lrange(key=self.REDIS_KEYS['cpu'])
 
+    def delete_cpu(self):
+        return self.delete(self.REDIS_KEYS['cpu'])
+
     def cache_memory(self):
         return self.lpush(self.REDIS_KEYS['memory'],
                           f"{timezone.now().strftime('%H:%M:%S')}/{HardwareService.memory_usage()}")
 
     def get_memory(self):
         return self.lrange(key=self.REDIS_KEYS['memory'])
+
+    def delete_memory(self):
+        return self.delete(self.REDIS_KEYS['memory'])

@@ -14,14 +14,18 @@ def monitor_hardware():
 
 
 @shared_task
-def send_monitoring_data(context):
+def send_monitoring_data(context=None):
     view = HardwareView()
-    view.visualize_cpu_usage()
-    view.visualize_memory_usage()
+    view.visualize()
 
     asyncio.create_task(InternalService.send_monitoring(context=context,
-                                                        photo_path='cpu_usage.png',
-                                                        caption='CPU Usage'))
-    asyncio.create_task(InternalService.send_monitoring(context=context,
-                                                        photo_path='memory_usage.png',
-                                                        caption='Memory Usage'))
+                                                        photo_path='hardware_usage.png',
+                                                        caption='Hardware Usage'))
+
+
+@shared_task
+def clear_monitoring_data():
+    service = MonitoringCacheService()
+
+    service.delete_cpu()
+    service.delete_memory()
