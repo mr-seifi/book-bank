@@ -29,9 +29,5 @@ async def download_book(book: Book, context, user_id):
                                                  description=f'*{book.title}*\n{book.description}'[:500]
                                                              + f'...\n\n#{book.topic}\n@BookBank_RoBot')
 
-    await InternalService.forward_file(context=context,
-                                       file_id=message_id,
-                                       to=user_id)
-
     book.file = message_id
     book.save()
