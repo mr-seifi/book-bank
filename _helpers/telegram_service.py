@@ -22,6 +22,7 @@ class InternalService:
         #                                            thumb=thumb,
         #                                            caption=caption)
         bot = Bot(TELEGRAM_BOT_TOKEN, base_url='http://0.0.0.0:8081/bot')
+        print(thumb)
         if thumb:
             response = await bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
                                                document=file,

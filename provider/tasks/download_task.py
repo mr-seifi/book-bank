@@ -5,6 +5,7 @@ from ..services.libgen_service import LibgenService
 from _helpers.telegram_service import InternalService
 from .libgen_task import _download_cover
 from aiohttp import ClientSession
+import asyncio
 
 
 async def download_book(book: Book, context, user_id):
@@ -19,7 +20,7 @@ async def download_book(book: Book, context, user_id):
             content = await zlib_service.download_book(book.md5, session)
             await InternalService.send_info(context, f'Getting {filename} from ZLIB.')
         except Exception as ex:
-            print(ex)
+            asyncio.create_task(InternalService.send_error(context, ex))
             await InternalService.send_info(context, f'Getting {filename} from LIBGEN!')
             result = await session.get(book.download_url)
             content = await result.read()
