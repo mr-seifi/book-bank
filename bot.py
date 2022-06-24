@@ -92,10 +92,10 @@ class Main:
         # asyncio.create_task(send_book(md5, context, user_id))
 
 
-def main():
+async def main():
     # application = Application.builder().token(TELEGRAM_BOT_TOKEN).base_url('149.154.167.40:443').build()
-    Bot(TELEGRAM_BOT_TOKEN).log_out()
-    Bot(TELEGRAM_BOT_TOKEN).close()
+    await Bot(TELEGRAM_BOT_TOKEN).log_out()
+    await Bot(TELEGRAM_BOT_TOKEN).close()
     start_handler = CommandHandler('start', Main.start)
     menu_handler = ConversationHandler(
         entry_points=[CommandHandler('menu', Main.menu)],
@@ -120,4 +120,4 @@ def main():
 if __name__ == '__main__':
     django.setup()
 
-    main()
+    asyncio.run(main())
