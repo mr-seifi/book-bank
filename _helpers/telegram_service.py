@@ -73,9 +73,7 @@ class InternalService:
 
     @staticmethod
     async def send_monitoring(context, photo_path, caption):
-        photo = open(photo_path)
-
         response = await context.bot.send_photo(chat_id=TELEGRAM_WARNING_GROUP,
-                                                photo=photo.read(),
+                                                photo=photo_path,
                                                 caption=caption)
         return response
