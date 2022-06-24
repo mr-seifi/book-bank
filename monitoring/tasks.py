@@ -18,9 +18,9 @@ def send_monitoring_data(context=None):
     view = HardwareView()
     view.visualize()
 
-    asyncio.create_task(InternalService.send_monitoring(context=context,
-                                                        photo_path='hardware_usage.png',
-                                                        caption='Hardware Usage'))
+    asyncio.run(InternalService.send_monitoring(context=context,
+                                                photo_path='hardware_usage.png',
+                                                caption='Hardware Usage'))
 
 
 @shared_task
