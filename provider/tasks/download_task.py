@@ -28,9 +28,10 @@ async def download_book(book: Book, context, user_id):
                                                  thumb=book.cover,
                                                  description=f'*{book.title}*\n{book.description}'[:500]
                                                              + f'...\n\n#{book.topic}\n@BookBank_RoBot')
+    print(message_id)
 
     book.file = message_id
-    await book.save()
+    book.save()
 
     response = await InternalService.forward_file(context=context,
                                                   file_id=message_id,
