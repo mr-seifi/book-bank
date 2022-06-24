@@ -23,7 +23,7 @@ class Main:
         message = update.message
         user_id = message.from_user.id
         # asyncio.run(download_books(context))
-        send_monitoring_data.apply_async(args=(context,))
+        send_monitoring_data(context)
 
     @staticmethod
     async def blind_date(update: Update, context: CallbackContext):
