@@ -1,8 +1,8 @@
 import django
 from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle,
-                      InputTextMessageContent)
+                      InputTextMessageContent, Bot)
 from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
-                          InlineQueryHandler, Application)
+                          InlineQueryHandler, Application, Updater)
 
 from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
@@ -93,8 +93,9 @@ class Main:
 
 
 def main():
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).base_url('149.154.167.40:443').build()
-
+    # application = Application.builder().token(TELEGRAM_BOT_TOKEN).base_url('149.154.167.40:443').build()
+    Bot(TELEGRAM_BOT_TOKEN).log_out()
+    Bot(TELEGRAM_BOT_TOKEN).close()
     start_handler = CommandHandler('start', Main.start)
     menu_handler = ConversationHandler(
         entry_points=[CommandHandler('menu', Main.menu)],
