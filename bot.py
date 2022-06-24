@@ -89,10 +89,6 @@ class Main:
         else:
             asyncio.create_task(download_book(book, context=context, user_id=user_id))
 
-        await InternalService.forward_file(context=context,
-                                           file_id=book.file,
-                                           to=user_id)
-
 
 
 def main():

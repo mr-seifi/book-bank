@@ -31,3 +31,9 @@ async def download_book(book: Book, context, user_id):
 
     book.file = message_id
     book.save()
+
+    response = await InternalService.forward_file(context=context,
+                                                  file_id=book.file,
+                                                  to=user_id)
+
+    print(response)
