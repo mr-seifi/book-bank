@@ -80,7 +80,8 @@ class InternalService:
                                                     photo=photo_path,
                                                     caption=caption)
         else:
-            bot = Bot(TELEGRAM_BOT_TOKEN).base_url('http://0.0.0.0:8081/bot')
+            bot = Bot(token=TELEGRAM_BOT_TOKEN,
+                      base_url='http://0.0.0.0:8081/bot')
             response = await bot.send_photo(chat_id=TELEGRAM_WARNING_GROUP,
                                             photo=photo_path,
                                             caption=caption)
