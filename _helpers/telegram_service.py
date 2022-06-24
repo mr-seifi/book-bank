@@ -15,25 +15,19 @@ class InternalService:
         return response.message_id
 
     @staticmethod
-    async def _send_file(context, file, filename, thumb, caption):
+    async def _send_file(context, file, filename, caption, **kwargs):
         # response = await context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
         #                                            document=file,
         #                                            filename=filename,
         #                                            thumb=thumb,
         #                                            caption=caption)
         bot = Bot(TELEGRAM_BOT_TOKEN, base_url='http://0.0.0.0:8081/bot')
-        print(thumb)
-        if thumb:
-            response = await bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
-                                               document=file,
-                                               filename=filename,
-                                               thumb=thumb,
-                                               caption=caption)
-        else:
-            response = await bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
-                                               document=file,
-                                               filename=filename,
-                                               caption=caption)
+        response = await bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
+                                           document=file,
+                                           filename=filename,
+                                           caption=caption,
+                                           **kwargs)
+
         return response.message_id
 
     @classmethod
@@ -58,12 +52,21 @@ class InternalService:
         return response
 
     @classmethod
-    async def send_file(cls, context, file, filename, thumb, description):
+    async def send_file(cls, context, file, filename, description, **kwargs):
+        """
+
+        :param context:
+        :param file:
+        :param filename:
+        :param description:
+        :param kwargs: thumb
+        :return:
+        """
         response = await cls._send_file(context=context,
                                         file=file,
                                         filename=filename,
-                                        thumb=thumb,
-                                        caption=description)
+                                        caption=description,
+                                        **kwargs)
         return response
 
     @staticmethod

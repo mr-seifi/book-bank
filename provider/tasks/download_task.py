@@ -12,7 +12,7 @@ async def download_book(book: Book, context, user_id):
     zlib_service = ZLibService()
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
 
-    if book.cover_url and not book.cover:
+    if book.cover_url:
         _download_cover(requests.Session(), book)
 
     async with ClientSession() as session:
