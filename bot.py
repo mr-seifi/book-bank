@@ -108,13 +108,13 @@ def main():
     )
     download_handler = CommandHandler('download', Main.download)
 
-    application.add_handler(start_handler)
-    application.add_handler(menu_handler)
-    application.add_handler(download_handler)
-    application.add_handler(InlineQueryHandler(Main.download_inline))
-
-    # Start the Bot
-    application.run_polling()
+    # application.add_handler(start_handler)
+    # application.add_handler(menu_handler)
+    # application.add_handler(download_handler)
+    # application.add_handler(InlineQueryHandler(Main.download_inline))
+    #
+    # # Start the Bot
+    # application.run_polling()
 
 
 if __name__ == '__main__':
