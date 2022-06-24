@@ -92,10 +92,9 @@ class Main:
         # asyncio.create_task(send_book(md5, context, user_id))
 
 
-async def main():
-    # application = Application.builder().token(TELEGRAM_BOT_TOKEN).base_url('149.154.167.40:443').build()
-    await Bot(TELEGRAM_BOT_TOKEN).log_out()
-    await Bot(TELEGRAM_BOT_TOKEN).close()
+def main():
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).base_url('149.154.167.40:443').build()
+
     start_handler = CommandHandler('start', Main.start)
     menu_handler = ConversationHandler(
         entry_points=[CommandHandler('menu', Main.menu)],
@@ -108,16 +107,16 @@ async def main():
     )
     download_handler = CommandHandler('download', Main.download)
 
-    # application.add_handler(start_handler)
-    # application.add_handler(menu_handler)
-    # application.add_handler(download_handler)
-    # application.add_handler(InlineQueryHandler(Main.download_inline))
-    #
-    # # Start the Bot
-    # application.run_polling()
+    application.add_handler(start_handler)
+    application.add_handler(menu_handler)
+    application.add_handler(download_handler)
+    application.add_handler(InlineQueryHandler(Main.download_inline))
+
+    # Start the Bot
+    application.run_polling()
 
 
 if __name__ == '__main__':
     django.setup()
 
-    asyncio.run(main())
+    main()
