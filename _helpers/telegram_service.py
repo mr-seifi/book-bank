@@ -1,6 +1,8 @@
 from secret import TELEGRAM_INFO_GROUP, TELEGRAM_WARNING_GROUP, TELEGRAM_ERROR_GROUP, TELEGRAM_FILES_CHANNEL
 from telegram.constants import ParseMode
 from django.conf import settings
+from telegram import Bot
+from secret import TELEGRAM_BOT_TOKEN
 
 
 class InternalService:
@@ -14,11 +16,17 @@ class InternalService:
 
     @staticmethod
     async def _send_file(context, file, filename, thumb, caption):
-        response = await context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
-                                                   document=file,
-                                                   filename=filename,
-                                                   thumb=thumb,
-                                                   caption=caption)
+        # response = await context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
+        #                                            document=file,
+        #                                            filename=filename,
+        #                                            thumb=thumb,
+        #                                            caption=caption)
+        bot = Bot(TELEGRAM_BOT_TOKEN, base_url='http://0.0.0.0:8081/bot')
+        response = await bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
+                                           document=file,
+                                           filename=filename,
+                                           thumb=thumb,
+                                           caption=caption)
         return response.message_id
 
     @classmethod

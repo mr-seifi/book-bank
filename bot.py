@@ -90,7 +90,6 @@ class Main:
             asyncio.create_task(download_book(book, context=context, user_id=user_id))
 
 
-
 def main():
     application = Application.builder().base_url('http://0.0.0.0:8081/bot').token(TELEGRAM_BOT_TOKEN).build()
 
