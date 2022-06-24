@@ -18,6 +18,7 @@ def send_monitoring_data(context):
     view = HardwareView()
     view.visualize_cpu_usage()
 
-    asyncio.run(InternalService.send_monitoring(context=context,
-                                                photo_path='cpu_usage.png',
-                                                caption='CPU Usage'))
+    asyncio.create_task(InternalService.send_monitoring(context=context,
+                                                        photo_path='cpu_usage.png',
+                                                        caption='CPU Usage')
+                        )
