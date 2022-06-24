@@ -25,10 +25,15 @@ async def download_book(book: Book, context, user_id):
             result = await session.get(book.download_url)
             content = await result.read()
 
-    message_id = await InternalService.send_file(context=context, file=content, filename=filename,
-                                                 thumb=book.cover,
-                                                 description=f'*{book.title}*\n{book.description}'[:500]
-                                                             + f'...\n\n#{book.topic}\n@BookBank_RoBot')
+    if book.cover:
+        message_id = await InternalService.send_file(context=context, file=content, filename=filename,
+                                                     thumb=book.cover,
+                                                     description=f'*{book.title}*\n{book.description}'[:500]
+                                                                 + f'...\n\n#{book.topic}\n@BookBank_RoBot')
+    else:
+        message_id = await InternalService.send_file(context=context, file=content, filename=filename,
+                                                     description=f'*{book.title}*\n{book.description}'[:500]
+                                                                 + f'...\n\n#{book.topic}\n@BookBank_RoBot')
     print(message_id)
 
     book.file = message_id
