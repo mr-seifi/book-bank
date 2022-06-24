@@ -27,6 +27,7 @@ class InternalService:
                                            filename=filename,
                                            caption=caption,
                                            **kwargs)
+        print(response)
 
         return response.message_id
 
