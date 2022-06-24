@@ -1,8 +1,6 @@
 from secret import TELEGRAM_INFO_GROUP, TELEGRAM_WARNING_GROUP, TELEGRAM_ERROR_GROUP, TELEGRAM_FILES_CHANNEL
 from telegram.constants import ParseMode
 from django.conf import settings
-from telegram import Bot
-from secret import TELEGRAM_BOT_TOKEN
 
 
 class InternalService:
@@ -16,23 +14,15 @@ class InternalService:
 
     @staticmethod
     async def _send_file(context, file, filename, caption, **kwargs):
-        # response = await context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
-        #                                            document=file,
-        #                                            filename=filename,
-        #                                            thumb=thumb,
-        #                                            caption=caption)
-        bot = Bot(TELEGRAM_BOT_TOKEN, base_url='http://0.0.0.0:8081/bot')
-        response = await bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
-                                           document=file,
-                                           filename=filename,
-                                           caption=caption,
-                                           write_timeout=500,
-                                           read_timeout=500,
-                                           connect_timeout=500,
-                                           pool_timeout=500,
-                                           **kwargs)
-        print(response)
-
+        response = await context.bot.send_document(chat_id=TELEGRAM_FILES_CHANNEL,
+                                                   document=file,
+                                                   filename=filename,
+                                                   caption=caption,
+                                                   write_timeout=500,
+                                                   read_timeout=500,
+                                                   connect_timeout=500,
+                                                   pool_timeout=500,
+                                                   **kwargs)
         return response.message_id
 
     @classmethod
@@ -76,11 +66,7 @@ class InternalService:
 
     @staticmethod
     async def forward_file(context, file_id, to):
-        bot = Bot(TELEGRAM_BOT_TOKEN, base_url='http://0.0.0.0:8081/bot')
-        # response = await context.bot.forward_message(chat_id=to,
-        #                                              from_chat_id=TELEGRAM_FILES_CHANNEL,
-        #                                              message_id=file_id)
-        response = await bot.forward_message(chat_id=to,
-                                             from_chat_id=TELEGRAM_FILES_CHANNEL,
-                                             message_id=file_id)
+        response = await context.bot.forward_message(chat_id=to,
+                                                     from_chat_id=TELEGRAM_FILES_CHANNEL,
+                                                     message_id=file_id)
         return response
