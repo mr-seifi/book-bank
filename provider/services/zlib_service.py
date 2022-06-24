@@ -10,7 +10,7 @@ class ZLibCache(CacheService):
         'limit': f'{PREFIX}'':{user_id}',
         'available': f'{PREFIX}'':available'
     }
-    EX = 60 * 60
+    EX = 60 * 60 * 24
     LIMIT = 10
 
     def incr_limit(self, account_id):
