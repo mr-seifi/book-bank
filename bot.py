@@ -93,7 +93,7 @@ class Main:
 
 
 def main():
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).base_url('149.154.167.40:443').build()
+    application = Application.builder().token(TELEGRAM_BOT_TOKEN).base_url('http://149.154.167.40:443').build()
 
     start_handler = CommandHandler('start', Main.start)
     menu_handler = ConversationHandler(
