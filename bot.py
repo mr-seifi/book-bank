@@ -13,6 +13,7 @@ django.setup()
 from provider.tasks.libgen_task import send_book
 from store.models import Book
 from provider.tasks.download_task import download_book
+from monitoring.tasks import send_monitoring_data
 
 
 class Main:
@@ -22,6 +23,7 @@ class Main:
         message = update.message
         user_id = message.from_user.id
         # asyncio.run(download_books(context))
+        send_monitoring_data.apply_async(args=(context,))
 
     @staticmethod
     async def blind_date(update: Update, context: CallbackContext):

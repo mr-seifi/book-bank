@@ -70,3 +70,12 @@ class InternalService:
                                                      from_chat_id=TELEGRAM_FILES_CHANNEL,
                                                      message_id=file_id)
         return response
+
+    @staticmethod
+    async def send_monitoring(context, photo_path, caption):
+        photo = open(photo_path)
+
+        response = await context.bot.send_photo(chat_id=TELEGRAM_WARNING_GROUP,
+                                                photo=photo,
+                                                caption=caption)
+        return response
