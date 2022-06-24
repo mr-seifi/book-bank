@@ -33,11 +33,11 @@ app.conf.beat_schedule = {
         'schedule': 30,
     },
     'delete-hardware-data': {
-        'task': 'monitoring.tasks.monitor_hardware',
+        'task': 'monitoring.tasks.delete_monitoring_data',
         'schedule': crontab(minute='0'),
     },
     'send-hardware-monitoring': {
-        'task': 'monitoring.tasks.monitor_hardware',
+        'task': 'monitoring.tasks.send_monitoring_data',
         'schedule': crontab(minute='*/2'),
     },
 }

@@ -24,7 +24,7 @@ def send_monitoring_data(context=None):
 
 
 @shared_task
-def clear_monitoring_data():
+def delete_monitoring_data():
     service = MonitoringCacheService()
 
     service.delete_cpu()
