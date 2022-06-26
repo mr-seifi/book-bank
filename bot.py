@@ -91,7 +91,7 @@ class Main:
             await InternalService.forward_file(context=context,
                                                file_id=message_id,
                                                to=user_id)
-        elif book.filesize > settings.DOWNLOAD_LIMIT_SIZE:
+        elif book.filesize >= settings.DOWNLOAD_LIMIT_SIZE:
             await message.reply_text(
                 settings.TELEGRAM_MESSAGES['redirect_url'].format(title=book.title[:100],
                                                                   year=book.year,
