@@ -1,8 +1,8 @@
 import django
 from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle,
-                      InputTextMessageContent, Bot)
+                      InputTextMessageContent)
 from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
-                          InlineQueryHandler, Application, Updater)
+                          InlineQueryHandler, Application)
 from telegram.constants import ParseMode
 
 from _helpers.telegram_service import InternalService
@@ -11,10 +11,8 @@ from django.conf import settings
 import asyncio
 
 django.setup()
-from provider.tasks.libgen_task import send_book
 from store.models import Book
 from provider.tasks.download_task import download_book
-from monitoring.tasks import send_monitoring_data
 from provider.services import RedirectService
 
 
