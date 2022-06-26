@@ -134,7 +134,9 @@ TELEGRAM_MESSAGES = {
              '*{ex}*',
     'waiting_for_download': 'چند لحظه صبر کن ببینم می‌تونم پیداش کنم یا نه.',
     'redirect_url': '*{title}*\n_{year}-{extension}_\n{authors}-{publisher}\n\n{description}\n\n'
-                    'برای دانلود کتاب، روی این ({url})[لینک] کلیک کنید.'
+                    'برای دانلود کتاب، روی این '
+                    '[لینک]({url})'
+                    ' کلیک کن.'
 }
 
 TELEGRAM_BUTTONS = {
