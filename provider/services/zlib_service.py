@@ -1,5 +1,7 @@
 from _helpers.cache_service import CacheService
 from bs4 import BeautifulSoup
+from provider.models import ZlibAccount
+from aiohttp import ClientSession
 
 
 class ZLibCache(CacheService):
@@ -8,7 +10,7 @@ class ZLibCache(CacheService):
         'limit': f'{PREFIX}'':{user_id}',
         'available': f'{PREFIX}'':available'
     }
-    EX = 60 * 60
+    EX = 60 * 60 * 24
     LIMIT = 10
 
     def incr_limit(self, account_id):
@@ -55,20 +57,37 @@ class ZLibService:
                       'Chrome/101.0.0.0 Safari/537.36',
     }
 
-    def _fetch_download_url(self, md5, session):
-        from provider.models import ZlibAccount
+    @staticmethod
+    def _get_available_account():
+        service = ZLibCache()
+        account_id = service.get_available()
 
-        url = f'{self.BASE_URL}/s/{md5}/'
-        account = ZlibAccount.get_available_account()
+        if account_id == '0':
+            account_id = 1
+
+        if service.get_limit(account_id) < service.LIMIT:
+            return ZlibAccount.objects.get(pk=account_id)
+
+        for account in ZlibAccount.objects.all():
+            if service.get_limit(account_id=account.id) < service.LIMIT:
+                service.cache_available(account_id=account.id)
+                return account
+
+    async def _fetch_download_url(self, md5: str, session: ClientSession):
+        url = f'{self.BASE_URL}/s/{md5.lower()}/'
+        account = self._get_available_account()
         self.cookies['remix_userkey'] = account.user_key
         self.cookies['remix_userid'] = str(account.user_id)
 
-        print(account.id, account.user_id, account.user_key)
         ZLibCache().incr_limit(account_id=account.id)
-        res = session.get(url, headers=self.headers, cookies=self.cookies)
-        soup = BeautifulSoup(res.text, 'html.parser')
+        res = await session.get(url, headers=self.headers, cookies=self.cookies)
+        soup = BeautifulSoup(await res.text(), 'html.parser')
         return soup.find('a', attrs={'class': 'btn btn-primary dlButton addDownloadedBook'})['href']
 
-    def download_book(self, md5, session):
-        download_url = f'{self.BASE_URL}{self._fetch_download_url(md5, session)}'
-        return session.get(download_url, headers=self.headers, cookies=self.cookies).content
+    async def download_book(self, md5, session):
+        download_url = f'{self.BASE_URL}{await self._fetch_download_url(md5, session)}'
+        print(download_url)
+        response = await session.get(download_url, headers=self.headers, cookies=self.cookies)
+        content = await response.read()
+        print('downloaded')
+        return content

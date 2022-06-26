@@ -168,6 +168,6 @@ async def send_book(md5: str, context, user_id):
         async with aiohttp.ClientSession() as session:
             message_id = await _download_book(book, session, context)
 
-    InternalService.forward_file(context=context,
-                                 file_id=message_id,
-                                 to=user_id)
+    await InternalService.forward_file(context=context,
+                                       file_id=message_id,
+                                       to=user_id)

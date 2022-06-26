@@ -20,3 +20,15 @@ class CacheService:
         if ttl:
             self.cache_on_redis(key, self.get_from_redis(key) or 0, ttl)
         return self.client.incr(name=key)
+
+    def lpush(self, key, *values):
+        return self.client.lpush(key, *values)
+
+    def rpush(self, key, *values):
+        return self.client.rpush(key, *values)
+
+    def lrange(self, key, l=0, r=2880):
+        return self.client.lrange(name=key, start=l, end=r)
+
+    def delete(self, *keys):
+        return self.client.delete(*keys)
