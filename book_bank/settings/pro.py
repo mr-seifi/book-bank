@@ -6,7 +6,7 @@ ADMINS = (
     ('Amin Seifi', 'aminseiifi@gmail.com'),
 )
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['book-bank.net', 'www.book-bank.net']
 
 DATABASES = {
     'default': {
