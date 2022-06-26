@@ -132,7 +132,9 @@ TELEGRAM_MESSAGES = {
                '*{warning}*',
     'error': 'اوه اوه، نگفتم داستان میشه، چ کنیم حالا؟!!\n'
              '*{ex}*',
-    'waiting_for_download': 'چند لحظه صبر کن ببینم می‌تونم پیداش کنم یا نه.'
+    'waiting_for_download': 'چند لحظه صبر کن ببینم می‌تونم پیداش کنم یا نه.',
+    'redirect_url': '*{title}*\n_{year}-{extension}_\n{authors}-{publisher}\n\n{description}\n\n'
+                    'برای دانلود کتاب، روی این ({url})[لینک] کلیک کنید.'
 }
 
 TELEGRAM_BUTTONS = {
@@ -147,3 +149,4 @@ REDIS_HOST = '127.0.0.1'
 REDIS_PORT = '6379'
 
 RELEASE_DATE = make_aware(datetime.datetime.strptime('2022-06-20 00:43:40', '%Y-%m-%d %H:%M:%S'))
+DOWNLOAD_LIMIT_SIZE = int(7e7)

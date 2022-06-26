@@ -3,6 +3,7 @@ from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup, Inline
                       InputTextMessageContent, Bot)
 from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
                           InlineQueryHandler, Application, Updater)
+from telegram.constants import ParseMode
 
 from _helpers.telegram_service import InternalService
 from secret import TELEGRAM_BOT_TOKEN
@@ -14,6 +15,7 @@ from provider.tasks.libgen_task import send_book
 from store.models import Book
 from provider.tasks.download_task import download_book
 from monitoring.tasks import send_monitoring_data
+from provider.services import RedirectService
 
 
 class Main:
@@ -91,6 +93,18 @@ class Main:
             await InternalService.forward_file(context=context,
                                                file_id=message_id,
                                                to=user_id)
+        elif book.filesize > settings.DOWNLOAD_LIMIT_SIZE:
+            await message.reply_text(
+                settings.TELEGRAM_MESSAGES['redirect_url'].format(title=book.title[:100],
+                                                                  year=book.year,
+                                                                  extension=book.extension,
+                                                                  authors=book.authors[:50],
+                                                                  publisher=book.publisher[:50],
+                                                                  description=book.description[:250],
+                                                                  url=RedirectService().generate_redirect_url(book)),
+                parse_mode=ParseMode.MARKDOWN
+            )
+
         else:
             asyncio.create_task(download_book(book, context=context, user_id=user_id))
 
