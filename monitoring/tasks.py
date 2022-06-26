@@ -5,7 +5,7 @@ from .views import HardwareView
 import asyncio
 
 
-@shared_task
+@shared_task(ignore_result=True)
 def monitor_hardware():
     service = MonitoringCacheService()
 
@@ -13,7 +13,7 @@ def monitor_hardware():
     service.cache_memory()
 
 
-@shared_task
+@shared_task(ignore_result=True)
 def send_monitoring_data(context=None):
     view = HardwareView()
     view.visualize()
@@ -23,7 +23,7 @@ def send_monitoring_data(context=None):
                                                 caption='Hardware Usage'))
 
 
-@shared_task
+@shared_task(ignore_result=True)
 def delete_monitoring_data():
     service = MonitoringCacheService()
 
