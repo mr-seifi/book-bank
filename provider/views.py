@@ -12,7 +12,7 @@ class BookDownloadUrlRedirectView(RedirectView):
         if not md5:
             return
 
-        book = get_object_or_404(Book, md5=md5)
+        book = Book.objects.get(md5=md5)
         if book.filesize < self.DOWNLOAD_LIMIT_SIZE:
             return
 
