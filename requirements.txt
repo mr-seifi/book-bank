@@ -1,6 +1,7 @@
 aiohttp==3.8.1
 beautifulsoup4==4.11.1
 Django==4.0.5
+djangorestframework==3.13.1
 ipython==8.4.0
 mysql-connector-python==8.0.29
 Pillow==9.1.1
