@@ -151,4 +151,4 @@ REDIS_HOST = '127.0.0.1'
 REDIS_PORT = '6379'
 
 RELEASE_DATE = make_aware(datetime.datetime.strptime('2022-06-20 00:43:40', '%Y-%m-%d %H:%M:%S'))
-DOWNLOAD_LIMIT_SIZE = int(7e7)
+DOWNLOAD_LIMIT_SIZE = int(3e7)
