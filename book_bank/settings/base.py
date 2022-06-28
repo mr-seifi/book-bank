@@ -127,7 +127,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 TELEGRAM_MESSAGES = {
     'info': 'ببینید چه خبری آوردم!\n'
-            '*{info}*',
+            '{info}',
     'warning': 'داستان داره میشه!!\n'
                '*{warning}*',
     'error': 'اوه اوه، نگفتم داستان میشه، چ کنیم حالا؟!!\n'
