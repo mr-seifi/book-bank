@@ -56,6 +56,7 @@ class Main:
         from uuid import uuid4
 
         query = update.inline_query.query
+        user = update.inline_query.from_user
 
         if query == "":
             return
@@ -71,6 +72,9 @@ class Main:
             ) for book in Book.objects.filter(document__exact=query).exclude(title__exact='').order_by('document')[:25]
         ]
         response = await update.inline_query.answer(results)
+
+        await InternalService.send_info(context=context, info=f'[{user.full_name}](tg://user?id={user.id}) is searching'
+                                                              f' for {query}! \U0001F60F')
         return response
 
     @staticmethod
