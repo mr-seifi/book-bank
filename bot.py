@@ -76,6 +76,7 @@ class Main:
     @staticmethod
     async def download(update: Update, context: CallbackContext):
         message = update.message
+        user = message.from_user
         user_id = message.from_user.id
 
         md5 = context.args[0]
@@ -88,10 +89,14 @@ class Main:
 
         if book.file:
             message_id = book.file
+            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {book.title}'
+                                               f' from forwarding.')
             await InternalService.forward_file(context=context,
                                                file_id=message_id,
                                                to=user_id)
         elif book.filesize >= settings.DOWNLOAD_LIMIT_SIZE:
+            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {book.title}'
+                                               f' from link.')
             await message.reply_text(
                 settings.TELEGRAM_MESSAGES['redirect_url'].format(title=book.title[:100],
                                                                   year=book.year,
@@ -104,7 +109,7 @@ class Main:
             )
 
         else:
-            asyncio.create_task(download_book(book, context=context, user_id=user_id))
+            asyncio.create_task(download_book(book, context=context, user=message.from_user))
 
 
 def main():

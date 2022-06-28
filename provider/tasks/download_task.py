@@ -8,7 +8,8 @@ from aiohttp import ClientSession
 import asyncio
 
 
-async def download_book(book: Book, context, user_id):
+async def download_book(book: Book, context, user):
+    user_id = user.id
     zlib_service = ZLibService()
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
 
@@ -18,10 +19,12 @@ async def download_book(book: Book, context, user_id):
     async with ClientSession() as session:
         try:
             content = await zlib_service.download_book(book.md5, session)
-            await InternalService.send_info(context, f'Getting {filename} from ZLIB.')
+            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {filename}'
+                                                     f' from ZLIB.')
         except Exception as ex:
             asyncio.create_task(InternalService.send_error(context, ex))
-            await InternalService.send_info(context, f'Getting {filename} from LIBGEN!')
+            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {filename}'
+                                                     f' from LIBGEN!')
             result = await session.get(book.download_url)
             content = await result.read()
 
