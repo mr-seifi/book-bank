@@ -13,7 +13,7 @@ class AccountCacheService(CacheService):
         self.incr_from_redis(self.REDIS_KEYS['limit'].format(user_id=user_id))
 
     def get_limit(self, user_id):
-        return self.get_from_redis(self.REDIS_KEYS['limit'].format(user_id=user_id)).decode()
+        return int(self.get_from_redis(self.REDIS_KEYS['limit'].format(user_id=user_id)).decode())
 
     @staticmethod
     def delete_limits():
