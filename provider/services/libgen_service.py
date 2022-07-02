@@ -3,11 +3,13 @@ import datetime
 import re
 from bs4 import BeautifulSoup
 import requests
+from django.db.models import Max
 from mysql.connector import connect
 from concurrent.futures import ThreadPoolExecutor
 import logging
 from django.utils.text import slugify
 from _helpers.cache_service import CacheService
+from store.models import Book
 
 
 class LibgenCache(CacheService):
@@ -39,11 +41,14 @@ class LibgenService:
             from secret import MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, MYSQL_HOST
             self.conn = connect(user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB, host=MYSQL_HOST)
 
-    def cache_last_id(self) -> int:
-        cursor = self.conn.cursor()
-        select_last_id_query = 'SELECT id FROM updated u ORDER BY id DESC LIMIT 1'
-        cursor.execute(select_last_id_query)
-        last_id = cursor.fetchone()[0]
+    def cache_last_id(self, our=False) -> int:
+        if our:
+            last_id = Book.objects.aggregate(Max('libgen_id')).get('libgen_id__max', 0)
+        else:
+            cursor = self.conn.cursor()
+            select_last_id_query = 'SELECT MAX(id) FROM updated u'
+            cursor.execute(select_last_id_query)
+            last_id = cursor.fetchone()[0]
 
         cache_service = LibgenCache()
         cache_service.cache_last_id(last_id)

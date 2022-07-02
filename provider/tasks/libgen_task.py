@@ -7,12 +7,15 @@ import aiohttp
 import requests
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.utils import timezone
 
 from _helpers import batch
 from _helpers.telegram_service import InternalService
 from provider.services.libgen_service import LibgenService
 from store.models import Book
 from celery import shared_task
+from secret import TELEGRAM_BOT_TOKEN
+from telegram import Bot
 
 books = []
 
@@ -184,7 +187,7 @@ async def send_book(md5: str, context, user_id):
 def update_database():
     service = LibgenService()
 
-    last_id = service.cache_last_id()
+    last_id = service.cache_last_id(our=True)
     logger.info(f'[+] last id: {last_id} cached.')
 
     service.recreate_database()
@@ -202,3 +205,9 @@ def update_database():
     add_books_to_database(offset=last_id)
     logger.info(f'[+] books were turned to our DB format.')
 
+    new_last_id = service.cache_last_id()
+
+    bot = Bot(token=TELEGRAM_BOT_TOKEN,
+              base_url='http://0.0.0.0:8081/bot')
+    InternalService.send_info(bot, f'[+] {timezone.now().strftime("%Y-%m-%d %H:%M:%S")}: {new_last_id - last_id} '
+                                   f'books updated!')
