@@ -43,5 +43,9 @@ app.conf.beat_schedule = {
     'update-books': {
         'task': 'provider.tasks.libgen_task.update_database',
         'schedule': crontab(hour=5, minute=0)
+    },
+    'delete-account-limits': {
+        'task': 'store.tasks.delete_account_limits',
+        'schedule': crontab(hour=0, minute=0)
     }
 }

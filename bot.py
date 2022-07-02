@@ -14,6 +14,7 @@ django.setup()
 from store.models import Book
 from provider.tasks.download_task import download_book
 from provider.services import RedirectService
+from store.services import AccountCacheService
 
 
 class Main:
@@ -83,6 +84,14 @@ class Main:
         user = message.from_user
         user_id = message.from_user.id
 
+        account_service = AccountCacheService()
+        limit = account_service.get_limit(user_id=user_id)
+        if limit > settings.USER_DOWNLOAD_LIMIT:
+            await message.reply_text(
+                settings.TELEGRAM_MESSAGES['limited_download']
+            )
+            return
+
         md5 = context.args[0]
 
         await message.reply_text(
@@ -114,6 +123,8 @@ class Main:
 
         else:
             asyncio.create_task(download_book(book, context=context, user=message.from_user))
+
+        account_service.incr_limit(user_id=user_id)
 
 
 def main():

@@ -136,7 +136,8 @@ TELEGRAM_MESSAGES = {
     'redirect_url': '*{title}*\n_{year}-{extension}_\n{authors}-{publisher}\n\n{description}\n\n'
                     'برای دانلود کتاب، روی این '
                     '[لینک]({url})'
-                    ' کلیک کن.'
+                    ' کلیک کن.',
+    'limited_download': f'شرمنده ولی تا آخر امروز بیش‌تر از این نمی‌تونی از من کتاب دانلود کنی.'
 }
 
 TELEGRAM_BUTTONS = {
@@ -152,3 +153,4 @@ REDIS_PORT = '6379'
 
 RELEASE_DATE = make_aware(datetime.datetime.strptime('2022-06-20 00:43:40', '%Y-%m-%d %H:%M:%S'))
 DOWNLOAD_LIMIT_SIZE = int(3e7)
+USER_DOWNLOAD_LIMIT = 10
