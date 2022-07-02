@@ -40,4 +40,8 @@ app.conf.beat_schedule = {
         'task': 'monitoring.tasks.send_monitoring_data',
         'schedule': crontab(minute='*/5'),
     },
+    'update-books': {
+        'task': 'provider.tasks.libgen_task.update_database',
+        'schedule': crontab(hour=5, minute=0)
+    }
 }

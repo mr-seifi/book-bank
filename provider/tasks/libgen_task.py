@@ -1,16 +1,23 @@
 import asyncio
-import aiohttp
-import requests
-from django.core.files.base import ContentFile
-from _helpers.telegram_service import InternalService
-from store.models import Book
-from provider.services.libgen_service import LibgenService
+import logging
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing.pool import Pool
-from _helpers import batch
+
+import aiohttp
+import requests
 from django.conf import settings
+from django.core.files.base import ContentFile
+
+from _helpers import batch
+from _helpers.telegram_service import InternalService
+from provider.services.libgen_service import LibgenService
+from store.models import Book
+from celery import shared_task
 
 books = []
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(process)d-%(filename)s-%(lineno)s-%(levelname)s-%(message)s')
 
 
 def _add_book(book: dict):
@@ -171,3 +178,27 @@ async def send_book(md5: str, context, user_id):
     await InternalService.forward_file(context=context,
                                        file_id=message_id,
                                        to=user_id)
+
+
+@shared_task(ignore_result=True)
+def update_database():
+    service = LibgenService()
+
+    last_id = service.cache_last_id()
+    logger.info(f'[+] last id: {last_id} cached.')
+
+    service.recreate_database()
+    logger.info(f'[+] DB recreated.')
+
+    service.get_updated_database_dump()
+    logger.info(f'[+] updated DB dumped.')
+
+    service.import_database()
+    logger.info(f'[+] DB imported successfully.')
+
+    service.delete_downloaded_database_dump()
+    logger.info(f'[+] additional files deleted.')
+
+    add_books_to_database(offset=last_id)
+    logger.info(f'[+] books were turned to our DB format.')
+

@@ -1,3 +1,5 @@
+import os
+import datetime
 import re
 from bs4 import BeautifulSoup
 import requests
@@ -5,6 +7,20 @@ from mysql.connector import connect
 from concurrent.futures import ThreadPoolExecutor
 import logging
 from django.utils.text import slugify
+from _helpers.cache_service import CacheService
+
+
+class LibgenCache(CacheService):
+    PREFIX = 'LIBGEN'
+    REDIS_KEYS = {
+        'last_id': f'{PREFIX}'':last_id',
+    }
+
+    def cache_last_id(self, last_id):
+        return self.cache_on_redis(key=self.REDIS_KEYS['last_id'], value=last_id)
+
+    def get_last_id(self):
+        return self.get_from_redis(key=self.REDIS_KEYS['last_id']).decode()
 
 
 class LibgenService:
@@ -22,6 +38,49 @@ class LibgenService:
         if not hasattr(self, 'conn') or not getattr(self, 'conn'):
             from secret import MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, MYSQL_HOST
             self.conn = connect(user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB, host=MYSQL_HOST)
+
+    def cache_last_id(self) -> int:
+        cursor = self.conn.cursor()
+        select_last_id_query = 'SELECT id FROM updated u ORDER BY id DESC LIMIT 1'
+        cursor.execute(select_last_id_query)
+        last_id = cursor.fetchone()[0]
+
+        cache_service = LibgenCache()
+        cache_service.cache_last_id(last_id)
+
+        return last_id
+
+    @staticmethod
+    def get_last_id():
+        cache_service = LibgenCache()
+        return cache_service.get_last_id()
+
+    def recreate_database(self):
+        from secret import MYSQL_DB
+        cursor = self.conn.cursor()
+        recreate_query = f'DROP DATABASE {MYSQL_DB}; CREATE DATABASE {MYSQL_DB}'
+        cursor.execute(recreate_query)
+
+    @staticmethod
+    def get_updated_database_dump():
+        now = datetime.datetime.now()
+
+        filename = f'libgen_{now.year}-{now.month}-{now.day}'
+        url = f'http://libgen.rs/dbdumps/{filename}'
+        os.system(f'cd ~/Downloads/libgen_db_dumps; wget {url}')
+        os.system(f'cd ~/Downloads/libgen_db_dumps; unrar x {filename}.rar')
+        os.system(f'cd ~/Downloads/libgen_db_dumps; rm -rf {filename}.rar')
+
+    @staticmethod
+    def import_database():
+        from secret import MYSQL_DB
+        filename = 'libgen.sql'
+        os.system(f'cd ~/Downloads/libgen_db_dumps; mysql -u root {MYSQL_DB} < {filename}')
+
+    @staticmethod
+    def delete_downloaded_database_dump():
+        filename = 'libgen.sql'
+        os.system(f'cd ~/Downloads/libgen_db_dumps; rm -rf {filename}')
 
     def read_book_from_mysql(self, limit=100000, offset=0):
         cursor = self.conn.cursor()
@@ -67,13 +126,15 @@ class LibgenService:
 
     @classmethod
     def get_cover_url(cls, book: dict):
+        if 'biblio' in book.get('cover_url', ''):
+            return ''
         return f"http://{cls.BASE_DOWNLOAD_COVER}/covers/{book.get('cover_url', '')}" if book.get('cover_url') else ''
 
     @classmethod
     def get_download_url(cls, book: dict) -> str:
         try:
             url = f"http://{cls.BASE_DOWNLOAD_FILE}/main/" \
-                  f"{book.get('cover_url', '').replace('-d', '').replace('-g', '').split('.')[-2]}/" \
+                  f"{book.get('cover_url', '').replace('-d', '').replace('-g', '').split('.')[-2].lower()}/" \
                   f"{cls.get_book_identifier(book)}" \
                   f".{book['extension']}" \
                 if book.get('cover_url') and book.get('extension') and 'cover' not in book.get('cover_url') \
