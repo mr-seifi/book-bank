@@ -22,8 +22,8 @@ class BaseView:
         plots = [series.plot(label=label) for label, series in pd_datas.items()]
 
         fig = plots[0].get_figure()
-        fig.set_title(title)
 
+        plots[0].set_title(title)
         plots[0].set_xlabel(xlabel)
         plots[0].set_ylabel(ylabel)
         if xlim:
