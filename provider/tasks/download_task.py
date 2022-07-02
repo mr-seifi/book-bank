@@ -5,6 +5,7 @@ from ..services.libgen_service import LibgenService
 from _helpers.telegram_service import InternalService
 from .libgen_task import _download_cover
 from aiohttp import ClientSession
+from store.services import QueueCacheService
 import asyncio
 
 
@@ -12,7 +13,9 @@ async def download_book(book: Book, context, user):
     user_id = user.id
     zlib_service = ZLibService()
     filename = f'{LibgenService.get_book_identifier(book.__dict__)}.{book.extension}'
+    queue_service = QueueCacheService()
 
+    queue_service.incr_queue()
     if book.cover_url:
         _download_cover(requests.Session(), book)
 
@@ -48,5 +51,5 @@ async def download_book(book: Book, context, user):
     await InternalService.forward_file(context=context,
                                        file_id=message_id,
                                        to=user_id)
-
+    queue_service.decr_queue()
     print('[+] Done!')

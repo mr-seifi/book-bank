@@ -62,7 +62,7 @@ app.conf.beat_schedule = {
     },
     'monitor-queue': {
         'task': 'monitoring.tasks.monitor_queue',
-        'schedule': 10,
+        'schedule': 5,
     },
     'delete-queue': {
         'task': 'monitoring.tasks.delete_queue',
