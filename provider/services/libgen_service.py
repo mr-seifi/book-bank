@@ -105,7 +105,7 @@ class LibgenService:
         if id__gte:
             select_query = 'SELECT * FROM updated u ' \
                            'LEFT JOIN topics t ON u.topic = t.topic_id ' \
-                           'WHERE u.Language = "English" AND (t.lang = "en" OR t.lang IS NULL) AND id > {offset}' \
+                           'WHERE u.Language = "English" AND (t.lang = "en" OR t.lang IS NULL) AND u.id > {offset}' \
                            ' LIMIT {limit}'
         cursor.execute(select_query.format(limit=limit, offset=offset))
         data = cursor.fetchall()
