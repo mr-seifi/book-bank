@@ -12,3 +12,4 @@ def delete_account_limits():
 
     service.delete_limits()
     logger.info('account limits were deleted!')
+

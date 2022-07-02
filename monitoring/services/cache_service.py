@@ -1,6 +1,7 @@
 from _helpers.cache_service import CacheService
 from django.utils import timezone
 from .hardware_service import HardwareService
+from store.services import AccountService, QueueService
 
 
 class MonitoringCacheService(CacheService):
@@ -29,3 +30,31 @@ class MonitoringCacheService(CacheService):
 
     def delete_memory(self):
         return self.delete(self.REDIS_KEYS['memory'])
+
+
+class MetricsCacheService(CacheService):
+    PREFIX = 'METRICS'
+    REDIS_KEYS = {
+        'account_limits': f'{PREFIX}'':ACCOUNT_LIMITS',
+        'queue': f'{PREFIX}'':QUEUE'
+    }
+
+    def cache_account_limits(self):
+        return self.lpush(self.REDIS_KEYS['account_limits'],
+                          f"{timezone.now().strftime('%H:%M:%S')}/{AccountService.limited_accounts_count()}")
+
+    def get_account_limits(self):
+        return self.lrange(key=self.REDIS_KEYS['account_limits'])
+
+    def delete_account_limits(self):
+        return self.delete(self.REDIS_KEYS['account_limits'])
+
+    def cache_queue(self):
+        return self.lpush(self.REDIS_KEYS['queue'],
+                          f"{timezone.now().strftime('%H:%M:%S')}/{QueueService.get_queue_count()}")
+
+    def get_queue(self):
+        return self.lrange(key=self.REDIS_KEYS['queue'])
+
+    def delete_queue(self):
+        return self.delete(self.REDIS_KEYS['queue'])

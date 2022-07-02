@@ -42,10 +42,34 @@ app.conf.beat_schedule = {
     },
     'update-books': {
         'task': 'provider.tasks.libgen_task.update_database',
-        'schedule': crontab(hour=5, minute=0)
+        'schedule': crontab(hour='5', minute='0')
     },
     'delete-account-limits': {
         'task': 'store.tasks.delete_account_limits',
-        'schedule': crontab(hour=0, minute=0)
-    }
+        'schedule': crontab(hour='0', minute='0')
+    },
+    'monitor-account-limits': {
+        'task': 'monitoring.tasks.monitor_account_limits',
+        'schedule': 60,
+    },
+    'delete-account-limits-data': {
+        'task': 'monitoring.tasks.delete_account_limits_data',
+        'schedule': crontab(hour='0', minute='0'),
+    },
+    'send-account-limits-metrics': {
+        'task': 'monitoring.tasks.send_account_limits_data',
+        'schedule': crontab(minute='*/10'),
+    },
+    'monitor-queue': {
+        'task': 'monitoring.tasks.monitor_queue',
+        'schedule': 10,
+    },
+    'delete-queue': {
+        'task': 'monitoring.tasks.delete_queue',
+        'schedule': crontab(hour='0', minute='0'),
+    },
+    'send-queue-metrics': {
+        'task': 'monitoring.tasks.send_queue_data',
+        'schedule': crontab(minute='*/5'),
+    },
 }

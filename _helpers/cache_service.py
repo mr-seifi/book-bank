@@ -21,6 +21,14 @@ class CacheService:
             self.cache_on_redis(key, self.get_from_redis(key) or 0, ttl)
         return self.client.incr(name=key)
 
+    def decr_from_redis(self, key: str, ttl=0):
+        if ttl:
+            self.cache_on_redis(key, self.get_from_redis(key) or 0, ttl)
+        return self.client.decr(name=key)
+
+    def get_keys(self, pattern):
+        return list(map(lambda x: x.decode(), self.client.keys(pattern=pattern)))
+
     def lpush(self, key, *values):
         return self.client.lpush(key, *values)
 
