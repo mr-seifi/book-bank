@@ -9,7 +9,12 @@ class InternalService:
 
     @staticmethod
     async def _send_message(context, message, to):
-        response = await context.bot.send_message(chat_id=to,
+        try:
+            response = await context.bot.send_message(chat_id=to,
+                                                      text=message,
+                                                      parse_mode=ParseMode.MARKDOWN)
+        except RuntimeError:
+            response = await context.send_message(chat_id=to,
                                                   text=message,
                                                   parse_mode=ParseMode.MARKDOWN)
         return response.message_id

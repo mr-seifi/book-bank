@@ -66,18 +66,18 @@ def add_books_to_database_online(limit=5000, offset=0):
             pool.starmap(_add_book, [(book,) for book in batch])
 
 
-def add_books_to_database(limit=30000, offset=0):
+def add_books_to_database(limit=30000, offset=0, id__gte=False):
     libgen_service = LibgenService()
     global books
 
-    for batch in libgen_service.read_book_from_mysql(limit=limit, offset=offset):
+    for batch in libgen_service.read_book_from_mysql(limit=limit, offset=offset, id__gte=id__gte):
         with ThreadPoolExecutor() as executor:
             executor.map(_add_book, batch)
         try:
             Book.objects.bulk_create(books)
             print('[+] batch created!')
-        except:
-            pass
+        except Exception as ex:
+            logger.error(ex)
         books.clear()
 
 
@@ -202,12 +202,13 @@ def update_database():
     service.delete_downloaded_database_dump()
     logger.info(f'[+] additional files deleted.')
 
-    add_books_to_database(offset=last_id)
+    add_books_to_database(offset=last_id, id__gte=True)
     logger.info(f'[+] books were turned to our DB format.')
 
     new_last_id = service.cache_last_id()
 
     bot = Bot(token=TELEGRAM_BOT_TOKEN,
               base_url='http://0.0.0.0:8081/bot')
-    InternalService.send_info(bot, f'[+] {timezone.now().strftime("%Y-%m-%d %H:%M:%S")}: {new_last_id - last_id} '
-                                   f'books updated!')
+    asyncio.run(
+        InternalService.send_info(bot, f'[+] {timezone.now().strftime("%Y-%m-%d %H:%M:%S")}: {new_last_id - last_id} '
+                                       f'books updated!'))

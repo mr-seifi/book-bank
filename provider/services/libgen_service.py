@@ -10,6 +10,7 @@ import logging
 from django.utils.text import slugify
 from _helpers.cache_service import CacheService
 from store.models import Book
+from mysql.connector import OperationalError
 
 
 class LibgenCache(CacheService):
@@ -41,11 +42,19 @@ class LibgenService:
             from secret import MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, MYSQL_HOST
             self.conn = connect(user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB, host=MYSQL_HOST)
 
+    def _get_cursor(self):
+        try:
+            cursor = self.conn.cursor()
+        except OperationalError:
+            self.conn.reconnect()
+            cursor = self.conn.cursor()
+        return cursor
+
     def cache_last_id(self, our=False) -> int:
         if our:
             last_id = Book.objects.aggregate(Max('libgen_id')).get('libgen_id__max', 0)
         else:
-            cursor = self.conn.cursor()
+            cursor = self._get_cursor()
             select_last_id_query = 'SELECT MAX(id) FROM updated u'
             cursor.execute(select_last_id_query)
             last_id = cursor.fetchone()[0]
@@ -62,7 +71,7 @@ class LibgenService:
 
     def recreate_database(self):
         from secret import MYSQL_DB
-        cursor = self.conn.cursor()
+        cursor = self._get_cursor()
         recreate_query = f'DROP DATABASE {MYSQL_DB}; CREATE DATABASE {MYSQL_DB}'
         cursor.execute(recreate_query)
 
@@ -70,8 +79,8 @@ class LibgenService:
     def get_updated_database_dump():
         now = datetime.datetime.now()
 
-        filename = f'libgen_{now.year}-{now.month}-{now.day}'
-        url = f'http://libgen.rs/dbdumps/{filename}'
+        filename = f'libgen_{now.year}-{now.month:02d}-{now.day:02d}'
+        url = f'http://libgen.rs/dbdumps/{filename}.rar'
         os.system(f'cd ~/Downloads/libgen_db_dumps; wget {url}')
         os.system(f'cd ~/Downloads/libgen_db_dumps; unrar x {filename}.rar')
         os.system(f'cd ~/Downloads/libgen_db_dumps; rm -rf {filename}.rar')
@@ -87,12 +96,17 @@ class LibgenService:
         filename = 'libgen.sql'
         os.system(f'cd ~/Downloads/libgen_db_dumps; rm -rf {filename}')
 
-    def read_book_from_mysql(self, limit=100000, offset=0):
-        cursor = self.conn.cursor()
+    def read_book_from_mysql(self, limit=100000, offset=0, id__gte=False):
+        cursor = self._get_cursor()
         select_query = 'SELECT * FROM updated u ' \
                        'LEFT JOIN topics t ON u.topic = t.topic_id ' \
                        'WHERE u.Language = "English" AND (t.lang = "en" OR t.lang IS NULL)' \
                        ' LIMIT {limit} OFFSET {offset}'
+        if id__gte:
+            select_query = 'SELECT * FROM updated u ' \
+                           'LEFT JOIN topics t ON u.topic = t.topic_id ' \
+                           'WHERE u.Language = "English" AND (t.lang = "en" OR t.lang IS NULL) AND id > {offset}' \
+                           ' LIMIT {limit}'
         cursor.execute(select_query.format(limit=limit, offset=offset))
         data = cursor.fetchall()
 
@@ -112,7 +126,7 @@ class LibgenService:
     def _add_description(self, book_batch: list) -> list:
         md5_to_book_dict = {book['md5'].lower(): book for book in book_batch}
 
-        cursor = self.conn.cursor()
+        cursor = self._get_cursor()
         select_query = 'SELECT md5, descr FROM description ' \
                        'WHERE md5 IN ({})'.format(', '.join(f'"{word}"' for word in list(md5_to_book_dict)))
         cursor.execute(select_query)
