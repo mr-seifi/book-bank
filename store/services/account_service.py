@@ -1,6 +1,6 @@
 from _helpers.cache_service import CacheService
 import os
-
+from django.conf import settings
 
 class AccountCacheService(CacheService):
     PREFIX = 'ACCOUNT'
@@ -29,7 +29,8 @@ class AccountService:
         service = AccountCacheService()
 
         limited_keys = service.get_limited_keys()
-        return sum([1 for key in limited_keys if service.get_limit(user_id=key.split('_')[1])])
+        return sum([1 for key in limited_keys if service.get_limit(user_id=key.split('_')[1]) >=
+                    settings.USER_DOWNLOAD_LIMIT])
 
 
 class QueueCacheService(CacheService):
