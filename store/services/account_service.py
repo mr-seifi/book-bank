@@ -2,6 +2,7 @@ from _helpers.cache_service import CacheService
 import os
 from django.conf import settings
 
+
 class AccountCacheService(CacheService):
     PREFIX = 'ACCOUNT'
     REDIS_KEYS = {

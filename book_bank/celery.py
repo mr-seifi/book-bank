@@ -65,7 +65,7 @@ app.conf.beat_schedule = {
         'schedule': 5,
     },
     'delete-queue': {
-        'task': 'monitoring.tasks.delete_queue',
+        'task': 'monitoring.tasks.delete_queue_data',
         'schedule': crontab(hour='0', minute='0'),
     },
     'send-queue-metrics': {
