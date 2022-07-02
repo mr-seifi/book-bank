@@ -46,7 +46,7 @@ class QueueCacheService(CacheService):
         return self.decr_from_redis(self.REDIS_KEYS['count'])
 
     def get_queue(self):
-        return self.get_from_redis(self.REDIS_KEYS['count'])
+        return int(self.get_from_redis(self.REDIS_KEYS['count']).decode())
 
 
 class QueueService:
