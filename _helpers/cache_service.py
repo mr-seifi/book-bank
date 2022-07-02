@@ -35,7 +35,7 @@ class CacheService:
     def rpush(self, key, *values):
         return self.client.rpush(key, *values)
 
-    def lrange(self, key, l=0, r=2880):
+    def lrange(self, key, l=0, r=100000):
         return self.client.lrange(name=key, start=l, end=r)
 
     def delete(self, *keys):
