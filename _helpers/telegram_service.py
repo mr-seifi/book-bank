@@ -8,6 +8,11 @@ from telegram import Bot
 class InternalService:
 
     @staticmethod
+    def get_bot():
+        return Bot(token=TELEGRAM_BOT_TOKEN,
+                   base_url='http://0.0.0.0:8081/bot')
+
+    @staticmethod
     async def _send_message(context, message, to):
         try:
             response = await context.bot.send_message(chat_id=to,
@@ -48,6 +53,9 @@ class InternalService:
 
     @classmethod
     async def send_error(cls, context, error):
+        if not context:
+            context = InternalService.get_bot()
+
         response = await cls._send_message(context=context,
                                            message=settings.TELEGRAM_MESSAGES['error'].format(ex=str(error)),
                                            to=TELEGRAM_ERROR_GROUP)
@@ -85,8 +93,7 @@ class InternalService:
                                                     photo=photo_path,
                                                     caption=caption)
         else:
-            bot = Bot(token=TELEGRAM_BOT_TOKEN,
-                      base_url='http://0.0.0.0:8081/bot')
+            bot = InternalService.get_bot()
             response = await bot.send_photo(chat_id=TELEGRAM_WARNING_GROUP,
                                             photo=photo_path,
                                             caption=caption)

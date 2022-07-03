@@ -10,7 +10,9 @@ import logging
 from django.utils.text import slugify
 from _helpers.cache_service import CacheService
 from store.models import Book
-from mysql.connector import OperationalError
+from mysql.connector import OperationalError, ProgrammingError
+from _helpers.telegram_service import InternalService
+from datetime import timedelta
 
 
 class LibgenCache(CacheService):
@@ -73,11 +75,16 @@ class LibgenService:
         from secret import MYSQL_DB
         cursor = self._get_cursor()
         recreate_query = f'DROP DATABASE {MYSQL_DB}; CREATE DATABASE {MYSQL_DB}'
-        cursor.execute(recreate_query)
+        try:
+            cursor.execute(recreate_query)
+        except ProgrammingError as pe:
+            InternalService.send_error(context=None, error=pe)
+            create_query = f'CREATE DATABASE {MYSQL_DB}'
+            cursor.execute(create_query)
 
     @staticmethod
     def get_updated_database_dump():
-        now = datetime.datetime.now()
+        now = datetime.datetime.now() - timedelta(days=1)
 
         filename = f'libgen_{now.year}-{now.month:02d}-{now.day:02d}'
         url = f'http://libgen.rs/dbdumps/{filename}.rar'

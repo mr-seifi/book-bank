@@ -1,5 +1,5 @@
 import asyncio
-import logging
+from _helpers import logger
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing.pool import Pool
 
@@ -18,9 +18,6 @@ from secret import TELEGRAM_BOT_TOKEN
 from telegram import Bot
 
 books = []
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(process)d-%(filename)s-%(lineno)s-%(levelname)s-%(message)s')
 
 
 def _add_book(book: dict):
@@ -207,8 +204,5 @@ def update_database():
 
     new_last_id = service.cache_last_id()
 
-    bot = Bot(token=TELEGRAM_BOT_TOKEN,
-              base_url='http://0.0.0.0:8081/bot')
-    asyncio.run(
-        InternalService.send_info(bot, f'[+] {timezone.now().strftime("%Y-%m-%d %H:%M:%S")}: {new_last_id - last_id} '
-                                       f'books updated!'))
+    logger.info(f'[+] {timezone.now().strftime("%Y-%m-%d %H:%M:%S")}: {new_last_id - last_id} '
+                f'books updated!')
