@@ -14,6 +14,16 @@ class InternalService:
 
     @staticmethod
     async def _send_message(context, message, to):
+        bot = None
+        if not context:
+            bot = InternalService.get_bot()
+
+        if bot:
+            response = await bot.send_message(chat_id=to,
+                                              text=message,
+                                              parse_mode=ParseMode.MARKDOWN)
+            return response.message_id
+
         try:
             response = await context.bot.send_message(chat_id=to,
                                                       text=message,
