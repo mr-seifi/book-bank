@@ -2,8 +2,11 @@ import requests
 from secret import TELEGRAM_INFO_GROUP, TELEGRAM_WARNING_GROUP, TELEGRAM_ERROR_GROUP, TELEGRAM_FILES_CHANNEL, \
     TELEGRAM_BOT_TOKEN
 from telegram.constants import ParseMode
+from django import setup
 from django.conf import settings
 from telegram import Bot
+
+setup()
 from advertising.models import Advertiser
 
 
