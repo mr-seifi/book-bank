@@ -24,9 +24,10 @@ class Main:
         message = update.message
         user_id = message.from_user.id
 
-        await message.reply_text(
-            settings.TELEGRAM_MESSAGES['start'],
-            parse_mode=ParseMode.MARKDOWN
+        await message.reply_photo(
+            photo='main_cover.jpg',
+            caption=settings.TELEGRAM_MESSAGES['start'],
+            parse_mode=ParseMode.MARKDOWN,
         )
 
         return
