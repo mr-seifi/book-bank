@@ -9,8 +9,8 @@ class InternalService:
 
     @staticmethod
     def get_bot():
-        return Bot(token=TELEGRAM_BOT_TOKEN,
-                   base_url='http://0.0.0.0:8081/bot')
+        return Bot(token=TELEGRAM_BOT_TOKEN)
+        # base_url='http://0.0.0.0:8081/bot')
 
     @staticmethod
     async def _send_message(context, message, to):

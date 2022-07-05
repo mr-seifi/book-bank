@@ -128,7 +128,9 @@ class Main:
 
 
 def main():
-    application = Application.builder().base_url('http://0.0.0.0:8081/bot').token(TELEGRAM_BOT_TOKEN).build()
+    application = Application.builder() \
+        .token(TELEGRAM_BOT_TOKEN).build()
+    # .base_url('http://0.0.0.0:8081/bot')\
 
     start_handler = CommandHandler('start', Main.start)
     menu_handler = ConversationHandler(
