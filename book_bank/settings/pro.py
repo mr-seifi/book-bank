@@ -16,3 +16,5 @@ DATABASES = {
         'PASSWORD': 'postgres'
     }
 }
+
+STATIC_ROOT = '/var/www/book-bank.net/public_html/static'

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'store.apps.StoreConfig',
     'provider.apps.ProviderConfig',
     'monitoring.apps.MonitoringConfig',
+    'advertising.apps.AdvertisingConfig',
 ]
 
 MIDDLEWARE = [

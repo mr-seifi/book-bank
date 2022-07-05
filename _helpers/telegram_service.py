@@ -1,8 +1,10 @@
+import requests
 from secret import TELEGRAM_INFO_GROUP, TELEGRAM_WARNING_GROUP, TELEGRAM_ERROR_GROUP, TELEGRAM_FILES_CHANNEL, \
     TELEGRAM_BOT_TOKEN
 from telegram.constants import ParseMode
 from django.conf import settings
 from telegram import Bot
+from advertising.models import Advertiser
 
 
 class InternalService:
@@ -109,3 +111,24 @@ class InternalService:
                                             caption=caption)
 
         return response
+
+    @classmethod
+    def _is_user_joined_channel(cls, channel_id, user_id, session=None) -> bool:
+        url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getChatMember?chat_id={channel_id}&user_id={user_id}'
+        if not session:
+            session = requests.Session()
+
+        response = session.get(url)
+        return response.status_code == 200
+
+    @classmethod
+    def is_user_verified(cls, user_id) -> bool:
+
+        with requests.Session() as session:
+            for advertiser in Advertiser.objects.all():
+                if not cls._is_user_joined_channel(channel_id=advertiser.channel_id,
+                                                   user_id=user_id,
+                                                   session=session):
+                    return False
+
+        return True
