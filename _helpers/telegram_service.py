@@ -122,7 +122,13 @@ class InternalService:
             session = requests.Session()
 
         response = session.get(url)
-        return response.status_code == 200
+        if not response.status_code == 200:
+            return False
+
+        status = response.json().get('result').get('status')
+        if status == 'left':
+            return False
+        return True
 
     @classmethod
     def is_user_verified(cls, user_id) -> bool:
