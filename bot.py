@@ -24,13 +24,12 @@ class Main:
         message = update.message
         user_id = message.from_user.id
 
-        verified = await Main.check_verification(message=message)
-        if not verified:
-            return
-
         await message.reply_text(
-            settings.TELEGRAM_MESSAGES['verified_start']
+            settings.TELEGRAM_MESSAGES['start'],
+            parse_mode=ParseMode.MARKDOWN
         )
+
+        return
 
     @staticmethod
     async def check_verification(message):
