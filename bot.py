@@ -24,7 +24,7 @@ class Main:
         message = update.message
         user_id = message.from_user.id
 
-        verified = Main.check_verification(message=message)
+        verified = await Main.check_verification(message=message)
         if not verified:
             return
 
@@ -112,7 +112,7 @@ class Main:
         user = message.from_user
         user_id = message.from_user.id
 
-        verified = Main.check_verification(message=message)
+        verified = await Main.check_verification(message=message)
         if not verified:
             return
 
