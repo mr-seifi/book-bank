@@ -27,7 +27,7 @@ class Main:
         await message.reply_photo(
             photo='main_cover.jpg',
             caption=settings.TELEGRAM_MESSAGES['start'],
-            parse_mode=ParseMode.MARKDOWN,
+            parse_mode=ParseMode.MARKDOWN_V2,
         )
 
         return
