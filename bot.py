@@ -23,11 +23,39 @@ class Main:
     async def start(update: Update, context: CallbackContext):
         message = update.message
         user_id = message.from_user.id
-        # asyncio.run(download_books(context))
-        # send_monitoring_data(context)
-        # await InternalService.send_monitoring(context=context,
-        #                                       photo_path='cpu_usage.png',
-        #                                       caption='CPU Usage')
+
+        verified = Main.check_verification(message=message)
+        if not verified:
+            return
+
+        await message.reply_text(
+            settings.TELEGRAM_MESSAGES['verified_start']
+        )
+
+    @staticmethod
+    async def check_verification(message):
+        user_id = message.from_user.id
+
+        verified = InternalService.is_user_verified(user_id=user_id)
+
+        if not verified:
+            advertisers = InternalService.should_join(user_id=user_id)
+            keyboard = [
+                [
+                    InlineKeyboardButton(text=advertiser.channel_name,
+                                         url=f'https://t.me/{advertiser.channel_id}')
+                ] for advertiser in advertisers
+            ]
+            reply_markup = InlineKeyboardMarkup(keyboard)
+
+            await message.reply_text(
+                settings.TELEGRAM_MESSAGES['is_not_verified'],
+                reply_markup=reply_markup,
+                parse_mode=ParseMode.MARKDOWN
+            )
+
+            return False
+        return True
 
     @staticmethod
     async def blind_date(update: Update, context: CallbackContext):
@@ -84,7 +112,11 @@ class Main:
         user = message.from_user
         user_id = message.from_user.id
 
-        account_service= AccountCacheService()
+        verified = Main.check_verification(message=message)
+        if not verified:
+            return
+
+        account_service = AccountCacheService()
         limit = account_service.get_limit(user_id=user_id)
         if limit > settings.USER_DOWNLOAD_LIMIT:
             await message.reply_text(
@@ -102,14 +134,16 @@ class Main:
 
         if book.file:
             message_id = book.file
-            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {book.title}'
-                                               f' from forwarding.')
+            await InternalService.send_info(context,
+                                            f'[{user.full_name}](tg://user?id={user.id}) is getting {book.title}'
+                                            f' from forwarding.')
             await InternalService.forward_file(context=context,
                                                file_id=message_id,
                                                to=user_id)
         elif book.filesize >= settings.DOWNLOAD_LIMIT_SIZE:
-            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {book.title}'
-                                               f' from link.')
+            await InternalService.send_info(context,
+                                            f'[{user.full_name}](tg://user?id={user.id}) is getting {book.title}'
+                                            f' from link.')
             await message.reply_text(
                 settings.TELEGRAM_MESSAGES['redirect_url'].format(title=book.title[:100],
                                                                   year=book.year,

@@ -117,7 +117,7 @@ class InternalService:
 
     @classmethod
     def _is_user_joined_channel(cls, channel_id, user_id, session=None) -> bool:
-        url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getChatMember?chat_id={channel_id}&user_id={user_id}'
+        url = f'https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/getChatMember?chat_id=@{channel_id}&user_id={user_id}'
         if not session:
             session = requests.Session()
 
@@ -126,7 +126,6 @@ class InternalService:
 
     @classmethod
     def is_user_verified(cls, user_id) -> bool:
-
         with requests.Session() as session:
             for advertiser in Advertiser.objects.all():
                 if not cls._is_user_joined_channel(channel_id=advertiser.channel_id,
@@ -135,3 +134,14 @@ class InternalService:
                     return False
 
         return True
+
+    @classmethod
+    def should_join(cls, user_id) -> list:
+        advertisers = []
+        with requests.Session() as session:
+            for advertiser in Advertiser.objects.all():
+                if not cls._is_user_joined_channel(channel_id=advertiser.channel_id,
+                                                   user_id=user_id,
+                                                   session=session):
+                    advertisers.append(advertiser)
+        return advertisers
