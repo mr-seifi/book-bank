@@ -133,7 +133,7 @@ class InternalService:
     @classmethod
     def is_user_verified(cls, user_id) -> bool:
         with requests.Session() as session:
-            for advertiser in Advertiser.objects.all():
+            for advertiser in Advertiser.objects.active():
                 if not cls._is_user_joined_channel(channel_id=advertiser.channel_id,
                                                    user_id=user_id,
                                                    session=session):
@@ -145,7 +145,7 @@ class InternalService:
     def should_join(cls, user_id) -> list:
         advertisers = []
         with requests.Session() as session:
-            for advertiser in Advertiser.objects.all():
+            for advertiser in Advertiser.objects.active():
                 if not cls._is_user_joined_channel(channel_id=advertiser.channel_id,
                                                    user_id=user_id,
                                                    session=session):
