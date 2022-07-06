@@ -353,7 +353,7 @@ class Search:
     @staticmethod
     async def search(update: Update, context: CallbackContext):
         query = update.callback_query
-        user_id = query.from_user.id
+        # user_id = query.from_user.id
         await query.answer()
         # query.message.reply_text(
         #     swit
@@ -370,7 +370,7 @@ def main():
         states={
             settings.STATES['start']: [
                 CallbackQueryHandler(Payment.payment, pattern=r'^PAYMENT$'),
-                # CallbackQueryHandler(Search.search, pattern=r'^SEARCH$'),
+                CallbackQueryHandler(Search.search, pattern=r'^SEARCH$'),
             ],
             settings.STATES['payment']: [
                 CallbackQueryHandler(Payment.plan_selection, pattern=r'^cryptocurrency$'),
