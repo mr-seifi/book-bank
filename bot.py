@@ -36,7 +36,7 @@ class Main:
         user = User.objects.get(user_id=user.id)
         keyboard = [
             [
-                InlineKeyboardButton('جتسجوی کتاب', callback_data='SEARCH')
+                InlineKeyboardButton('جستجوی کتاب', callback_data='SEARCH')
             ]
         ]
         if not user.plan:
