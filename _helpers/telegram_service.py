@@ -18,7 +18,7 @@ class InternalService:
                    base_url='http://0.0.0.0:8081/bot')
 
     @staticmethod
-    async def _send_message(context, message, to):
+    async def _send_message(context, message, to, parse_mode):
         bot = None
         if not context:
             bot = InternalService.get_bot()
@@ -26,17 +26,17 @@ class InternalService:
         if bot:
             response = await bot.send_message(chat_id=to,
                                               text=message,
-                                              parse_mode=ParseMode.MARKDOWN)
+                                              parse_mode=parse_mode)
             return response.message_id
 
         try:
             response = await context.bot.send_message(chat_id=to,
                                                       text=message,
-                                                      parse_mode=ParseMode.MARKDOWN)
+                                                      parse_mode=parse_mode)
         except RuntimeError:
             response = await context.send_message(chat_id=to,
                                                   text=message,
-                                                  parse_mode=ParseMode.MARKDOWN)
+                                                  parse_mode=parse_mode)
         return response.message_id
 
     @staticmethod
@@ -53,10 +53,11 @@ class InternalService:
         return response.message_id
 
     @classmethod
-    async def send_info(cls, context, info):
+    async def send_info(cls, context, info, parse_mode=ParseMode.MARKDOWN):
         response = await cls._send_message(context=context,
                                            message=settings.TELEGRAM_MESSAGES['info'].format(info=str(info)),
-                                           to=TELEGRAM_INFO_GROUP)
+                                           to=TELEGRAM_INFO_GROUP,
+                                           parse_mode=parse_mode)
         return response
 
     @classmethod

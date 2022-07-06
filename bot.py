@@ -33,11 +33,18 @@ class Main:
                                 username=user.username,
                                 fullname=user.full_name)
 
+        user = User.objects.get(user_id=user.id)
         keyboard = [
             [
-                InlineKeyboardButton('خرید اشتراک ویژه', callback_data='PAYMENT')
+                InlineKeyboardButton('جتسجوی کتاب', callback_data='SEARCH')
             ]
         ]
+        if not user.plan:
+            keyboard += [
+                [
+                    InlineKeyboardButton('خرید اشتراک ویژه', callback_data='PAYMENT')
+                ]
+            ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await message.reply_photo(
@@ -126,11 +133,11 @@ class Main:
     @staticmethod
     async def download(update: Update, context: CallbackContext):
         message = update.message
-        user = message.from_user
         user_id = message.from_user.id
+        user = User.objects.get(user_id=user_id)
 
         verified = await Main.check_verification(message=message)
-        if not verified:
+        if not verified and not user.plan:
             return
 
         account_service = AccountCacheService()
@@ -152,15 +159,17 @@ class Main:
         if book.file:
             message_id = book.file
             await InternalService.send_info(context,
-                                            f'[{user.full_name}](tg://user?id={user.id}) is getting {book.title}'
-                                            f' from forwarding.')
+                                            f'[{user.fullname}](tg://user?id={user.user_id}) is getting {book.title}'
+                                            f' from forwarding\.',
+                                            ParseMode.MARKDOWN_V2)
             await InternalService.forward_file(context=context,
                                                file_id=message_id,
                                                to=user_id)
         elif book.filesize >= settings.DOWNLOAD_LIMIT_SIZE:
             await InternalService.send_info(context,
-                                            f'[{user.full_name}](tg://user?id={user.id}) is getting {book.title}'
-                                            f' from link.')
+                                            f'[{user.fullname}](tg://user?id={user.user_id}) is getting {book.title}'
+                                            f' from link\.',
+                                            ParseMode.MARKDOWN_V2)
             await message.reply_text(
                 settings.TELEGRAM_MESSAGES['redirect_url'].format(title=book.title[:100],
                                                                   year=book.year,
@@ -319,7 +328,7 @@ class Payment:
             CryptoPayment.objects.create(
                 user=user,
                 plan_id=plan_id,
-                transaction_hash=tx_hash.lower(),
+                transaction_hash=tx_hash.lower().strip(),
                 wallet=wallet
             )
         except IntegrityError as ie:
