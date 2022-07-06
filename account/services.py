@@ -125,3 +125,13 @@ class PaymentService:
             return False
         return cls._validate_bsc_tx(tx_hash=tx_hash,
                                     minimum_price=price + 0.5)
+
+    @classmethod
+    def remove_double_spending(cls, payments):
+        for payment in payments:
+            first_payment = CryptoPayment.objects.filter(
+                transaction_hash=payment.transaction_hash
+            ).order_by('created').first()
+            CryptoPayment.objects.filter(
+                transaction_hash=payment.transaction_hash
+            ).exclude(id=first_payment.id).delete()
