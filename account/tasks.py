@@ -15,9 +15,6 @@ def check_transactions():
     if not payment_service.check_has_payments():
         return
 
-    # -- Double-Spend Solution --
-    payment_service.remove_double_spending()
-
     approved_payment_ids, failed_payment_ids = payment_service.validate_transactions()
     if approved_payment_ids:
         total_earned = payment_service.get_total_earned(payment_ids=approved_payment_ids)

@@ -132,17 +132,6 @@ class PaymentService:
         return CryptoPayment.objects.filter(approved=False, seen=False)
 
     @classmethod
-    def remove_double_spending(cls):
-        payments = cls._get_new_payments()
-        for payment in payments:
-            first_payment = CryptoPayment.objects.filter(
-                transaction_hash=payment.transaction_hash
-            ).order_by('created').first()
-            CryptoPayment.objects.filter(
-                transaction_hash=payment.transaction_hash
-            ).exclude(id=first_payment.id).delete()
-
-    @classmethod
     def check_has_payments(cls) -> bool:
         payments = cls._get_new_payments()
         if not payments.exists():
