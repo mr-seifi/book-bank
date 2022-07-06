@@ -75,5 +75,9 @@ app.conf.beat_schedule = {
     'validate-payments': {
         'task': 'account.tasks.check_transactions',
         'schedule': crontab(minute='*/2')
+    },
+    'check-user-expiration': {
+        'task': 'account.tasks.check_expiration',
+        'schedule': crontab(minute='*/5')
     }
 }

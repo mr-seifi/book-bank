@@ -34,3 +34,15 @@ def check_transactions():
         failed_payments_user_ids = payment_service.bulk_payment_id_to_user_id(payment_ids=failed_payment_ids)
         asyncio.run(InternalService.send_message_to_users(user_ids=failed_payments_user_ids,
                                                           message=settings.TELEGRAM_MESSAGES['failed_payment']))
+
+
+@shared_task(ignore_result=True)
+def check_expiration():
+
+    payment_service = PaymentService()
+
+    expired_users = payment_service.check_user_vip_expiration()
+    user_ids = list(map(lambda x: x.user_id, expired_users))
+    if expired_users:
+        asyncio.run(InternalService.send_message_to_users(user_ids=user_ids,
+                                                          message=settings.TELEGRAM_MESSAGES['expired_vip_user']))

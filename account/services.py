@@ -1,7 +1,7 @@
 from _helpers.cache_service import CacheService
 from secret import BSCSCAN_API_KEY
 from requests.sessions import Session
-from .models import CryptoPayment
+from .models import CryptoPayment, User
 from bs4 import BeautifulSoup
 from .models import Wallet
 import re
@@ -149,6 +149,31 @@ class PaymentService:
             return False
         return True
 
+    @staticmethod
+    def _update_user_plan(user_id_to_plan_id: dict):
+        user_ids = user_id_to_plan_id.keys()
+
+        to_update_users = []
+        for user in User.objects.filter(id__in=user_ids):
+            user.plan_id = user_id_to_plan_id[user.id]
+            to_update_users.append(user)
+
+        User.objects.bulk_update(to_update_users, fields=['plan_id'])
+
+    @staticmethod
+    def check_user_vip_expiration() -> list:
+        vip_users = User.objects.filter(plan__isnull=False)
+
+        _to_update = []
+        for vip_user in vip_users:
+            if vip_user.is_vip():
+                continue
+            vip_user.plan = None
+            _to_update.append(vip_user)
+
+        User.objects.bulk_update(_to_update, fields=['plan'])
+        return _to_update
+
     @classmethod
     def validate_transactions(cls) -> (list, list):
         approved_payment_ids = []
@@ -166,6 +191,9 @@ class PaymentService:
         approved_payments.update(approved=True,
                                  seen=True)
         failed_payments.update(seen=True)
+
+        user_id_to_plan_id = dict(approved_payments.values_list('user_id', 'plan_id'))
+        cls._update_user_plan(user_id_to_plan_id)
 
         return approved_payment_ids, failed_payment_ids
 
