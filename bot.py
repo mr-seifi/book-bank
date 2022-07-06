@@ -323,7 +323,7 @@ class Payment:
                 wallet=wallet
             )
         except IntegrityError as ie:
-            await logger.error(
+            await logger.async_error(
                 str(ie)
             )
 
