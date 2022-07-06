@@ -344,7 +344,7 @@ def main():
                 CallbackQueryHandler(Payment.crypto_payment_deposit, pattern=r'^\w+\-?\d+$')
             ],
             settings.STATES['crypto_payment_trx']: [
-                MessageHandler(~ filters.COMMAND & filters.Regex(settings.REGEX_PATTERNS['wallet_address']),
+                MessageHandler(~ filters.COMMAND & filters.Regex(settings.REGEX_PATTERNS['transaction_hash']),
                                Payment.crypto_payment_save)
             ]
         },
