@@ -7,7 +7,7 @@ from .models import Wallet
 import re
 
 
-class AccountCacheService(CacheService):
+class PaymentCacheService(CacheService):
     PREFIX = 'PAYMENT'
     REDIS_KEYS = {
         'plan': f'{PREFIX}'':PLAN:{user_id}',

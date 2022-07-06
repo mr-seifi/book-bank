@@ -16,7 +16,7 @@ from provider.tasks.download_task import download_book
 from provider.services import RedirectService
 from store.services import AccountCacheService
 from account.models import User, Wallet, Plan, CryptoPayment
-from account.services import AccountCacheService
+from account.services import PaymentCacheService
 
 
 class Main:
@@ -237,7 +237,7 @@ class Payment:
         user_id = query.from_user.id
         plan_id = int(query.data)
 
-        cache_service = AccountCacheService()
+        cache_service = PaymentCacheService()
         cache_service.cache_plan(user_id=user_id,
                                  plan_id=plan_id)
 
@@ -267,7 +267,7 @@ class Payment:
         user_id = query.from_user.id
         network = query.data
 
-        cache_service = AccountCacheService()
+        cache_service = PaymentCacheService()
         cache_service.cache_crypto_network(user_id=user_id,
                                            network=network)
 
@@ -300,7 +300,7 @@ class Payment:
         user = User.objects.get(user_id=user_id)
         tx_hash = message.text
 
-        cache_service = AccountCacheService()
+        cache_service = PaymentCacheService()
         plan_id = cache_service.get_plan(user_id=user_id)
         network = cache_service.get_crypto_network(user_id=user_id)
 
