@@ -1,8 +1,6 @@
 from celery import shared_task
-from .models import CryptoPayment
 from .services import PaymentService
 from _helpers.logging import logger
-from django.db.models import Sum
 from django.conf import settings
 from _helpers.telegram_service import InternalService
 import asyncio
@@ -10,43 +8,29 @@ import asyncio
 
 @shared_task(igonre_result=True)
 def check_transactions():
-    payments = CryptoPayment.objects.filter(approved=False, seen=False)
-    if not payments.exists():
-        return
 
     payment_service = PaymentService()
 
+    # -- Check Has any Payment --
+    if not payment_service.check_has_payments():
+        return
+
     # -- Double-Spend Solution --
-    payment_service.remove_double_spending(payments)
+    payment_service.remove_double_spending()
 
-    approved_payment_ids = []
-    for payment in CryptoPayment.objects.filter(approved=False, seen=False):
-        is_validated = payment_service.validate_new_bsc_tx(tx_hash=payment.transaction_hash,
-                                                           price=payment.plan.price)
-        if is_validated:
-            approved_payment_ids.append(payment.id)
-
-    approved_payments = CryptoPayment.objects.filter(id__in=approved_payment_ids)
-    approved_payments.update(approved=True,
-                             seen=True)
-
+    approved_payment_ids, failed_payment_ids = payment_service.validate_transactions()
     if approved_payment_ids:
-        total_earned = CryptoPayment.objects.filter(id__in=approved_payment_ids).aggregate(
-            Sum('plan__price')
-        ).get('plan__price__sum', 0)
+        total_earned = payment_service.get_total_earned(payment_ids=approved_payment_ids)
 
         logger.info(
             f'*{len(approved_payment_ids)}* payments approved. - *{total_earned}$* earned.'
         )
 
-        approved_payments_user_ids = list(map(lambda pay: pay.user.user_id, approved_payments))
+        approved_payments_user_ids = payment_service.bulk_payment_id_to_user_id(payment_ids=approved_payment_ids)
         asyncio.run(InternalService.send_message_to_users(user_ids=approved_payments_user_ids,
                                                           message=settings.TELEGRAM_MESSAGES['approved_payment']))
 
-    failed_payments = CryptoPayment.objects.filter(approved=False,
-                                                   seen=False)
-    if failed_payments.exists():
-        failed_payments_user_ids = list(map(lambda pay: pay.user.user_id, failed_payments))
+    if failed_payment_ids:
+        failed_payments_user_ids = payment_service.bulk_payment_id_to_user_id(payment_ids=failed_payment_ids)
         asyncio.run(InternalService.send_message_to_users(user_ids=failed_payments_user_ids,
                                                           message=settings.TELEGRAM_MESSAGES['failed_payment']))
-        failed_payments.update(seen=True)

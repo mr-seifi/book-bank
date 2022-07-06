@@ -5,6 +5,7 @@ from .models import CryptoPayment
 from bs4 import BeautifulSoup
 from .models import Wallet
 import re
+from django.db.models import Sum
 
 
 class PaymentCacheService(CacheService):
@@ -118,7 +119,7 @@ class PaymentService:
         return True
 
     @classmethod
-    def validate_new_bsc_tx(cls, tx_hash, price) -> bool:
+    def _validate_new_bsc_tx(cls, tx_hash, price) -> bool:
         if CryptoPayment.objects.filter(transaction_hash=tx_hash,
                                         approved=True).exists() or \
                 CryptoPayment.objects.filter(transaction_hash=tx_hash).count() > 1:
@@ -126,8 +127,13 @@ class PaymentService:
         return cls._validate_bsc_tx(tx_hash=tx_hash,
                                     minimum_price=price + 0.5)
 
+    @staticmethod
+    def _get_new_payments():
+        return CryptoPayment.objects.filter(approved=False, seen=False)
+
     @classmethod
-    def remove_double_spending(cls, payments):
+    def remove_double_spending(cls):
+        payments = cls._get_new_payments()
         for payment in payments:
             first_payment = CryptoPayment.objects.filter(
                 transaction_hash=payment.transaction_hash
@@ -135,3 +141,45 @@ class PaymentService:
             CryptoPayment.objects.filter(
                 transaction_hash=payment.transaction_hash
             ).exclude(id=first_payment.id).delete()
+
+    @classmethod
+    def check_has_payments(cls) -> bool:
+        payments = cls._get_new_payments()
+        if not payments.exists():
+            return False
+        return True
+
+    @classmethod
+    def validate_transactions(cls) -> (list, list):
+        approved_payment_ids = []
+        failed_payment_ids = []
+        for payment in cls._get_new_payments():
+            is_validated = cls._validate_new_bsc_tx(tx_hash=payment.transaction_hash,
+                                                    price=payment.plan.price)
+            if is_validated:
+                approved_payment_ids.append(payment.id)
+            else:
+                failed_payment_ids.append(payment.id)
+
+        approved_payments = CryptoPayment.objects.filter(id__in=approved_payment_ids)
+        failed_payments = CryptoPayment.objects.filter(id__in=failed_payment_ids)
+        approved_payments.update(approved=True,
+                                 seen=True)
+        failed_payments.update(seen=True)
+
+        return approved_payment_ids, failed_payment_ids
+
+    @staticmethod
+    def get_total_earned(payment_ids) -> float:
+        return CryptoPayment.objects.filter(id__in=payment_ids).aggregate(
+            Sum('plan__price')
+        ).get('plan__price__sum', 0)
+
+    @staticmethod
+    def bulk_payment_id_to_user_id(payment_ids):
+        payments = CryptoPayment.objects.filter(id__in=payment_ids)
+        return list(map(lambda pay: pay.user.user_id, payments))
+
+    @classmethod
+    def get_failed_payments(cls):
+        return cls._get_new_payments()
