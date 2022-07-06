@@ -353,11 +353,9 @@ class Search:
     async def search(update: Update, context: CallbackContext):
         query = update.callback_query
         user_id = query.from_user.id
+        await query.answer()
 
-        # await query.me(
-        #     text='Hi',
-        #     protect_content=True
-        # )
+        await context.bot.answer_inline_query('HIa')
 
 
 def main():
