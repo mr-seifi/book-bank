@@ -355,7 +355,7 @@ class Search:
         user_id = query.from_user.id
         await query.answer()
 
-        await context.bot.answer_inline_query('HIa')
+        await context.bot.answer_inline_query('HIa', results=[])
 
 
 def main():
