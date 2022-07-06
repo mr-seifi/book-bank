@@ -201,7 +201,7 @@ class Payment:
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await query.edit_message_text(
-            "settings.TELEGRAM_MESSAGESpayment",
+            "settings.TELEGRAMMESSAGESpayment",
             reply_markup=reply_markup,
             parse_mode=ParseMode.MARKDOWN,
         )
