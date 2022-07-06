@@ -142,7 +142,7 @@ class Main:
 
         account_service = AccountCacheService()
         limit = account_service.get_limit(user_id=user_id)
-        if limit > settings.USER_DOWNLOAD_LIMIT:
+        if limit > settings.USER_DOWNLOAD_LIMIT and not user.plan:
             await message.reply_text(
                 settings.TELEGRAM_MESSAGES['limited_download']
             )
@@ -356,8 +356,7 @@ class Search:
         query = update.callback_query
         user_id = query.from_user.id
 
-        await query.answer(text='Hello',
-                           show_alert=True)
+        await query.answer(text='Hello')
 
 
 def main():
