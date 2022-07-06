@@ -184,7 +184,7 @@ class Payment:
         user_id = query.from_user.id
         user = User.objects.get(user_id=user_id)
 
-        await query.answer()
+        # await query.answer()
         if CryptoPayment.objects.filter(user_id=user.id,
                                         approved=False).exists():
             await query.edit_message_text(
@@ -201,7 +201,7 @@ class Payment:
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await query.edit_message_text(
-            "settings.TELEGRAMMESSAGESpayment",
+            settings.TELEGRAM_MESSAGES['payment'],
             reply_markup=reply_markup,
             parse_mode=ParseMode.MARKDOWN,
         )
