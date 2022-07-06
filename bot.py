@@ -160,16 +160,14 @@ class Main:
             message_id = book.file
             await InternalService.send_info(context,
                                             f'[{user.fullname}](tg://user?id={user.user_id}) is getting {book.title}'
-                                            f' from forwarding\.',
-                                            ParseMode.MARKDOWN_V2)
+                                            f' from forwarding\.')
             await InternalService.forward_file(context=context,
                                                file_id=message_id,
                                                to=user_id)
         elif book.filesize >= settings.DOWNLOAD_LIMIT_SIZE:
             await InternalService.send_info(context,
                                             f'[{user.fullname}](tg://user?id={user.user_id}) is getting {book.title}'
-                                            f' from link\.',
-                                            ParseMode.MARKDOWN_V2)
+                                            f' from link\.')
             await message.reply_text(
                 settings.TELEGRAM_MESSAGES['redirect_url'].format(title=book.title[:100],
                                                                   year=book.year,
@@ -356,10 +354,10 @@ class Search:
         query = update.callback_query
         user_id = query.from_user.id
 
-        await query.message.reply_text(
-            text='Hi',
-            protect_content=True
-        )
+        # await query.me(
+        #     text='Hi',
+        #     protect_content=True
+        # )
 
 
 def main():
