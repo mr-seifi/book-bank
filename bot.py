@@ -354,8 +354,8 @@ class Search:
         query = update.callback_query
         user_id = query.from_user.id
         await query.answer()
-
-        await context.bot.answer_inline_query('HIa', results=[])
+        
+        await update.inline_query.answer('hi')
 
 
 def main():
