@@ -2,7 +2,7 @@ import django
 from telegram import (Update, InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultArticle,
                       InputTextMessageContent)
 from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
-                          InlineQueryHandler, Application)
+                          InlineQueryHandler, CallbackQueryHandler, MessageHandler, filters, Application)
 from telegram.constants import ParseMode
 
 from _helpers.telegram_service import InternalService
@@ -15,6 +15,8 @@ from store.models import Book
 from provider.tasks.download_task import download_book
 from provider.services import RedirectService
 from store.services import AccountCacheService
+from account.models import User, Wallet, Plan, CryptoPayment
+from account.services import AccountCacheService
 
 
 class Main:
@@ -22,15 +24,28 @@ class Main:
     @staticmethod
     async def start(update: Update, context: CallbackContext):
         message = update.message
-        user_id = message.from_user.id
+        user = message.from_user
+
+        if not User.objects.filter(user_id=user.id).exists():
+            User.objects.create(user_id=user.id,
+                                username=user.username,
+                                fullname=user.full_name)
+
+        keyboard = [
+            [
+                InlineKeyboardButton('خرید اشتراک ویژه', callback_data='PAYMENT')
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
 
         await message.reply_photo(
             photo='main_cover.jpg',
             caption=settings.TELEGRAM_MESSAGES['start'],
+            reply_markup=reply_markup,
             parse_mode=ParseMode.MARKDOWN_V2,
         )
 
-        return
+        return settings.STATES['start']
 
     @staticmethod
     async def check_verification(message):
@@ -161,22 +176,182 @@ class Main:
         account_service.incr_limit(user_id=user_id)
 
 
+class Payment:
+
+    @staticmethod
+    async def payment(update: Update, context: CallbackContext) -> int:
+        query = update.callback_query
+        user_id = query.from_user.id
+        user = User.objects.get(user_id=user_id)
+
+        await query.answer()
+        if CryptoPayment.objects.filter(user_id=user.id,
+                                        approved=False).exists():
+            await query.edit_message_text(
+                settings.TELEGRAM_MESSAGES['have_false_payment']
+            )
+
+            return ConversationHandler.END
+
+        keyboard = [
+            [
+                InlineKeyboardButton('کریپتوکارنسی \U0001F4B0', callback_data='cryptocurrency')
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await query.edit_message_text(
+            settings.TELEGRAM_MESSAGES['payment'],
+            reply_markup=reply_markup,
+            parse_mode=ParseMode.MARKDOWN,
+        )
+
+        return settings.STATES['payment']
+
+    @staticmethod
+    async def plan_selection(update: Update, context: CallbackContext) -> int:
+        query = update.callback_query
+        user_id = query.from_user.id
+        mode = query.data
+
+        await query.answer()
+
+        keyboard = [
+            [
+                InlineKeyboardButton(str(plan), callback_data=plan.id)
+            ] for plan in Plan.objects.filter(mode=mode)
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await query.edit_message_text(
+            settings.TELEGRAM_MESSAGES['plan'],
+            reply_markup=reply_markup,
+            parse_mode=ParseMode.MARKDOWN
+        )
+
+        return settings.STATES['plan']
+
+    @staticmethod
+    async def crypto_payment(update: Update, context: CallbackContext) -> int:
+        query = update.callback_query
+        user_id = query.from_user.id
+        plan_id = int(query.data)
+
+        cache_service = AccountCacheService()
+        cache_service.cache_plan(user_id=user_id,
+                                 plan_id=plan_id)
+
+        await query.answer()
+
+        available_networks = set(Wallet.objects.all().values_list('network', flat=True))
+        network_to_label = dict(Wallet.NetworkChoices.choices)
+
+        keyboard = [
+            [
+                InlineKeyboardButton(network_to_label[network], callback_data=network)
+            ] for network in available_networks
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        await query.edit_message_text(
+            settings.TELEGRAM_MESSAGES['crypto_payment_network'],
+            reply_markup=reply_markup,
+            parse_mode=ParseMode.MARKDOWN,
+        )
+
+        return settings.STATES['crypto_payment']
+
+    @staticmethod
+    async def crypto_payment_deposit(update: Update, context: CallbackContext) -> int:
+        query = update.callback_query
+        user_id = query.from_user.id
+        network = query.data
+
+        cache_service = AccountCacheService()
+        cache_service.cache_crypto_network(user_id=user_id,
+                                           network=network)
+
+        await query.answer()
+
+        wallet = Wallet.objects.filter(network=network).last()
+
+        plan_id = cache_service.get_plan(user_id=user_id)
+        if not plan_id:
+            await query.edit_message_text(
+                settings.TELEGRAM_MESSAGES['expired']
+            )
+
+            return ConversationHandler.END
+
+        plan = Plan.objects.get(pk=plan_id)
+        await query.edit_message_text(
+            settings.TELEGRAM_MESSAGES['crypto_payment_deposit'].format(price=plan.price,
+                                                                        wallet=wallet.address,
+                                                                        network=wallet.network),
+            parse_mode=ParseMode.MARKDOWN,
+        )
+
+        return settings.STATES['crypto_payment_trx']
+
+    @staticmethod
+    async def crypto_payment_save(update: Update, context: CallbackContext) -> int:
+        message = update.message
+        user_id = message.from_user.id
+        user = User.objects.get(user_id=user_id)
+        tx_hash = message.text
+
+        cache_service = AccountCacheService()
+        plan_id = cache_service.get_plan(user_id=user_id)
+        network = cache_service.get_crypto_network(user_id=user_id)
+
+        if not plan_id or not network:
+            await message.reply_text(
+                settings.TELEGRAM_MESSAGES['expired']
+            )
+
+            return ConversationHandler.END
+
+        CryptoPayment.objects.create(
+            user=user,
+            plan_id=plan_id,
+            transaction_hash=tx_hash
+        )
+
+        await message.reply_text(
+            settings.TELEGRAM_MESSAGES['crypto_payment_save']
+        )
+
+        return ConversationHandler.END
+
+
 def main():
     application = Application.builder().base_url('http://0.0.0.0:8081/bot').token(TELEGRAM_BOT_TOKEN).build()
 
-    start_handler = CommandHandler('start', Main.start)
+    # start_handler = CommandHandler('start', Main.start)
     menu_handler = ConversationHandler(
-        entry_points=[CommandHandler('menu', Main.menu)],
+        entry_points=[CommandHandler('start', Main.start)],
         states={
-            1: [
-
+            settings.STATES['start']: [
+                CallbackQueryHandler(Payment.payment, pattern=r'^PAYMENT$')
             ],
+            settings.STATES['payment']: [
+                CallbackQueryHandler(Payment.plan_selection, pattern=r'^cryptocurrency$')
+            ],
+            settings.STATES['plan']: [
+                CallbackQueryHandler(Payment.crypto_payment, pattern=r'^\d+$')
+            ],
+            settings.STATES['crypto_payment']: [
+                CallbackQueryHandler(Payment.crypto_payment_deposit, pattern=r'^\d+$')
+            ],
+            settings.STATES['crypto_payment_trx']: [
+                MessageHandler(~ filters.COMMAND & filters.Regex(settings.REGEX_PATTERNS['wallet_address']), Payment.crypto_payment_save)
+            ]
         },
-        fallbacks=[CommandHandler('menu', Main.menu)]
+        fallbacks=[CommandHandler('start', Main.start)]
     )
     download_handler = CommandHandler('download', Main.download)
 
-    application.add_handler(start_handler)
+    # application.add_handler(start_handler)
     application.add_handler(menu_handler)
     application.add_handler(download_handler)
     application.add_handler(InlineQueryHandler(Main.download_inline))

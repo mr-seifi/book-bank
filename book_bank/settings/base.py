@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'provider.apps.ProviderConfig',
     'monitoring.apps.MonitoringConfig',
     'advertising.apps.AdvertisingConfig',
+    'account.apps.AccountConfig',
 ]
 
 MIDDLEWARE = [
@@ -146,11 +147,19 @@ TELEGRAM_MESSAGES = {
              '‌اگه کتابت توی نتایج پیدا نشد *اسم نویسنده* کتاب یا *منتشر کننده‌ی* اون رو هم کنارش بنویس تا بتونی پیداش کنی\.'
              '\n\n\U0001F514 [*تو کانالمون عضو شو*](https://t.me/BookBank_Channel) \U0001F514'
              '\n*بوس بهت* \U0001F618',
-
+    'payment': 'یکی از متدهای *پرداخت* زیر رو انتخاب کن.',
+    'plan': 'یکی از *پلن‌های* زیر رو انتخاب کن.',
+    'crypto_payment_network': 'به به، بچه مایه رو ببین، می‌خواد با کریپتو پرداخت کنه \U0001F923'
+                              '\nیکی از *شبکه‌های* پرداختی زیر رو انتخاب کن.',
+    'crypto_payment_deposit': 'حالا لطف کن مبلغ *{price} تتر* (کمیسیون حداکثر تا ۱ تتر پذیرفته می‌شود) رو به *ولت* `{wallet}‍`'
+                              ' با شبکه `{network}` واریز کن. بعد از واریز کردن، *شناسه‌ی تراکنش‌ت* رو همینجا برام بفرست.',
+    'crypto_payment_save': 'تشکر، حداکثر تا ۱۰ دقیقه دیگه نتیجه رو بهت اعلام می‌کنیم.',
+    'have_false_payment': 'شما هنوز یک تراکنش *تایید نشده* دارید، لطفا کمی صبر کنید.',
     'is_not_verified': 'سلام، به بوک‌بنک خوش‌اومدی :)\n'
                        'من کلی کتاب دارم ولی برای اینکه بتونی ازم *دانلود* کنی باید تو چند تا چنل عضو بشی که'
                        ' لینکشو برات این زیر میذارم.',
-    'verified_start': 'به من خوش‌اومدی :)'
+    'verified_start': 'به من خوش‌اومدی :)',
+    'expired': 'خیلی دیر اقدام کردی، لطفا دوباره شروع کن \U0001F625'
 }
 
 TELEGRAM_BUTTONS = {
@@ -158,11 +167,23 @@ TELEGRAM_BUTTONS = {
 }
 
 STATES = {
-
+    'start': 1,
+    'payment': 85,
+    'plan': 86,
+    'crypto_payment': 87,
+    'crypto_payment_trx': 88
 }
 
 REDIS_HOST = '127.0.0.1'
 REDIS_PORT = '6379'
+
+REGEX_PATTERNS = {
+    'wallet_address': r'^(?:[13][a-km-zA-HJ-NP-Z1-9]{25,34}|((bitcoincash|bchreg|bchtest):)'
+                      r'?(q|p)[a-z0-9]{41}|0x[a-fA-F0-9]{40}|[LM3][a-km-zA-HJ-NP-Z1-9]{26,33}'
+                      r'|D{1}[5-9A-HJ-NP-U]{1}[1-9A-HJ-NP-Za-km-z]{32}|X[1-9A-HJ-NP-Za-km-z]'
+                      r'{33}|4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}|A[0-9a-zA-Z]{33}|r[0-9a-zA-Z]{33}'
+                      r'|(bnb)([a-z0-9]{39})|T[A-Za-z1-9]{33})$'
+}
 
 RELEASE_DATE = make_aware(datetime.datetime.strptime('2022-06-20 00:43:40', '%Y-%m-%d %H:%M:%S'))
 DOWNLOAD_LIMIT_SIZE = int(3e7)
