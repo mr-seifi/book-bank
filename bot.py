@@ -349,6 +349,17 @@ class Payment:
         return ConversationHandler.END
 
 
+class Search:
+
+    @staticmethod
+    async def search(update: Update, context: CallbackContext):
+        query = update.callback_query
+        user_id = query.from_user.id
+
+        await query.answer(text='Hello',
+                           show_alert=True)
+
+
 def main():
     application = Application.builder().base_url('http://0.0.0.0:8081/bot').token(TELEGRAM_BOT_TOKEN).build()
 
@@ -357,16 +368,17 @@ def main():
         entry_points=[CommandHandler('start', Main.start)],
         states={
             settings.STATES['start']: [
-                CallbackQueryHandler(Payment.payment, pattern=r'^PAYMENT$')
+                CallbackQueryHandler(Payment.payment, pattern=r'^PAYMENT$'),
+                CallbackQueryHandler(Search.search, pattern=r'^SEARCH$'),
             ],
             settings.STATES['payment']: [
-                CallbackQueryHandler(Payment.plan_selection, pattern=r'^cryptocurrency$')
+                CallbackQueryHandler(Payment.plan_selection, pattern=r'^cryptocurrency$'),
             ],
             settings.STATES['plan']: [
-                CallbackQueryHandler(Payment.crypto_payment, pattern=r'^\d+$')
+                CallbackQueryHandler(Payment.crypto_payment, pattern=r'^\d+$'),
             ],
             settings.STATES['crypto_payment']: [
-                CallbackQueryHandler(Payment.crypto_payment_deposit, pattern=r'^\w+\-?\d+$')
+                CallbackQueryHandler(Payment.crypto_payment_deposit, pattern=r'^\w+\-?\d+$'),
             ],
             settings.STATES['crypto_payment_trx']: [
                 MessageHandler(~ filters.COMMAND & filters.Regex(settings.REGEX_PATTERNS['transaction_hash']),
