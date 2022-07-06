@@ -15,7 +15,7 @@ class User(models.Model):
     plan = models.ForeignKey(to='Plan', on_delete=models.CASCADE, related_name='users', null=True)
 
     def is_vip(self) -> bool:
-        if not self.cryptopayments.filter(approved=True).exists() or \
+        if not self.cryptopayments.filter(approved=True).exists() and \
                 not self.shaparakpayments.filter(approved=True).exists():
             return False
         last_payment = (self.cryptopayments.filter(approved=True) or self.shaparakpayments.filter(approved=True)).last()

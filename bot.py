@@ -319,7 +319,7 @@ class Payment:
             CryptoPayment.objects.create(
                 user=user,
                 plan_id=plan_id,
-                transaction_hash=tx_hash,
+                transaction_hash=tx_hash.lower(),
                 wallet=wallet
             )
         except IntegrityError as ie:
