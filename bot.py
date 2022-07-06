@@ -36,7 +36,8 @@ class Main:
         user = User.objects.get(user_id=user.id)
         keyboard = [
             [
-                InlineKeyboardButton('جستجوی کتاب', callback_data='SEARCH')
+                InlineKeyboardButton('جستجوی کتاب', callback_data='SEARCH',
+                                     switch_inline_query_current_chat='')
             ]
         ]
         if not user.plan:
@@ -354,8 +355,10 @@ class Search:
         query = update.callback_query
         user_id = query.from_user.id
         await query.answer()
-        
-        await update.inline_query.answer('hi')
+        # query.message.reply_text(
+        #     swit
+        # )
+        # await update.
 
 
 def main():
@@ -367,7 +370,7 @@ def main():
         states={
             settings.STATES['start']: [
                 CallbackQueryHandler(Payment.payment, pattern=r'^PAYMENT$'),
-                CallbackQueryHandler(Search.search, pattern=r'^SEARCH$'),
+                # CallbackQueryHandler(Search.search, pattern=r'^SEARCH$'),
             ],
             settings.STATES['payment']: [
                 CallbackQueryHandler(Payment.plan_selection, pattern=r'^cryptocurrency$'),
