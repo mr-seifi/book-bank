@@ -18,7 +18,7 @@ def check_transactions():
         if is_validated:
             approved_payment_ids.append(payment.id)
 
-    CryptoPayment.objects.filter(id__in=approved_payment_ids).update(approve=True)
+    CryptoPayment.objects.filter(id__in=approved_payment_ids).update(approved=True)
     payments.filter(created__lte=timezone.now() - timezone.timedelta(hours=2)).delete()
 
     if approved_payment_ids:
