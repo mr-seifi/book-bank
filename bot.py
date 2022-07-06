@@ -341,10 +341,11 @@ def main():
                 CallbackQueryHandler(Payment.crypto_payment, pattern=r'^\d+$')
             ],
             settings.STATES['crypto_payment']: [
-                CallbackQueryHandler(Payment.crypto_payment_deposit, pattern=r'^\d+$')
+                CallbackQueryHandler(Payment.crypto_payment_deposit, pattern=r'^\w+\-?\d+$')
             ],
             settings.STATES['crypto_payment_trx']: [
-                MessageHandler(~ filters.COMMAND & filters.Regex(settings.REGEX_PATTERNS['wallet_address']), Payment.crypto_payment_save)
+                MessageHandler(~ filters.COMMAND & filters.Regex(settings.REGEX_PATTERNS['wallet_address']),
+                               Payment.crypto_payment_save)
             ]
         },
         fallbacks=[CommandHandler('start', Main.start)]
