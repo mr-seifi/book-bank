@@ -46,7 +46,7 @@ class BasePayment(models.Model):
 
     user = models.ForeignKey(to='User', on_delete=models.PROTECT, related_name='%(class)ss')
     plan = models.ForeignKey(to='Plan', on_delete=models.PROTECT, related_name='%(class)ss')
-    transaction_hash = models.CharField(max_length=255, unique=True)
+    transaction_hash = models.CharField(max_length=255, db_index=True, unique=True)
     approved = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
