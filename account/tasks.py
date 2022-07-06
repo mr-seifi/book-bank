@@ -1,7 +1,6 @@
 from celery import shared_task
 from .models import CryptoPayment
 from .services import PaymentService
-from django.utils import timezone
 from _helpers.logging import logger
 from django.db.models import Sum
 from django.conf import settings
@@ -38,9 +37,10 @@ def check_transactions():
         asyncio.run(InternalService.send_message_to_users(user_ids=approved_payments_user_ids,
                                                           message=settings.TELEGRAM_MESSAGES['approved_payment']))
 
-    failed_payments = payments
+    failed_payments = CryptoPayment.objects.filter(approved=False,
+                                                   seen=False)
     if failed_payments.exists():
         failed_payments_user_ids = list(map(lambda pay: pay.user.user_id, failed_payments))
         asyncio.run(InternalService.send_message_to_users(user_ids=failed_payments_user_ids,
-                                                          message=settings.TELEGRAM_MESSAGES['approved_payment']))
+                                                          message=settings.TELEGRAM_MESSAGES['failed_payment']))
         failed_payments.update(seen=True)
