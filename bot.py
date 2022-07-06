@@ -356,7 +356,10 @@ class Search:
         query = update.callback_query
         user_id = query.from_user.id
 
-        await query.answer(text='Hello')
+        await query.message.reply_text(
+            text='Hi',
+            protect_content=True
+        )
 
 
 def main():
