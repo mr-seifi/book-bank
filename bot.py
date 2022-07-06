@@ -311,10 +311,12 @@ class Payment:
 
             return ConversationHandler.END
 
+        wallet = Wallet.objects.filter(network=network).last()
         CryptoPayment.objects.create(
             user=user,
             plan_id=plan_id,
-            transaction_hash=tx_hash
+            transaction_hash=tx_hash,
+            wallet=wallet
         )
 
         await message.reply_text(
