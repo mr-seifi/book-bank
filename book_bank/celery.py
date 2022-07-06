@@ -74,6 +74,6 @@ app.conf.beat_schedule = {
     },
     'validate-payments': {
         'task': 'account.tasks.check_transactions',
-        'schedule': crontab(minute='*/5')
+        'schedule': crontab(minute='*/2')
     }
 }

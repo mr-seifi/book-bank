@@ -11,6 +11,9 @@ import asyncio
 @shared_task(igonre_result=True)
 def check_transactions():
     payments = CryptoPayment.objects.filter(approved=False, seen=False)
+    if not payments.exists():
+        return
+
     payment_service = PaymentService()
 
     approved_payment_ids = []
