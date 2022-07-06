@@ -109,7 +109,8 @@ class PaymentService:
         amount = float(amount[0])
 
         wallet = Wallet.objects.filter(network='bep-20').last()
-        assert wallet.address == to_address
+        if not wallet.address.lower() == to_address.lower():
+            return False
 
         if amount < minimum_price:
             return False
