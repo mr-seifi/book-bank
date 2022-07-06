@@ -187,7 +187,7 @@ class Payment:
         await query.answer()
         if CryptoPayment.objects.filter(user_id=user.id,
                                         approved=False).exists():
-            await query.edit_message_text(
+            await query.message.reply_text(
                 settings.TELEGRAM_MESSAGES['have_false_payment']
             )
 
