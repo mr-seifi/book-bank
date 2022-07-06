@@ -6,8 +6,10 @@ from telegram.ext import (CallbackContext, CommandHandler, ConversationHandler,
 from telegram.constants import ParseMode
 
 from _helpers.telegram_service import InternalService
+from _helpers.logging import logger
 from secret import TELEGRAM_BOT_TOKEN
 from django.conf import settings
+from django.db import IntegrityError
 import asyncio
 
 django.setup()
@@ -312,12 +314,24 @@ class Payment:
             return ConversationHandler.END
 
         wallet = Wallet.objects.filter(network=network).last()
-        CryptoPayment.objects.create(
-            user=user,
-            plan_id=plan_id,
-            transaction_hash=tx_hash,
-            wallet=wallet
-        )
+
+        try:
+            CryptoPayment.objects.create(
+                user=user,
+                plan_id=plan_id,
+                transaction_hash=tx_hash,
+                wallet=wallet
+            )
+        except IntegrityError as ie:
+            logger.error(
+                str(ie)
+            )
+
+            await message.reply_text(
+                settings.TELEGRAM_MESSAGES['you_can\'t_do_it']
+            )
+
+            return ConversationHandler.END
 
         await message.reply_text(
             settings.TELEGRAM_MESSAGES['crypto_payment_save']
