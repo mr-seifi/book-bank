@@ -151,3 +151,11 @@ class InternalService:
                                                    session=session):
                     advertisers.append(advertiser)
         return advertisers
+
+    @classmethod
+    async def send_message_to_users(cls, user_ids, message):
+        bot = cls.get_bot()
+
+        [await bot.send_message(chat_id=user_id,
+                                text=message,
+                                parse_mode=ParseMode.MARKDOWN) for user_id in user_ids]

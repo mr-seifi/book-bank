@@ -4,11 +4,14 @@ from .services import PaymentService
 from django.utils import timezone
 from _helpers.logging import logger
 from django.db.models import Sum
+from django.conf import settings
+from _helpers.telegram_service import InternalService
+import asyncio
 
 
 @shared_task(igonre_result=True)
 def check_transactions():
-    payments = CryptoPayment.objects.filter(approved=False)
+    payments = CryptoPayment.objects.filter(approved=False, seen=False)
     payment_service = PaymentService()
 
     approved_payment_ids = []
@@ -18,8 +21,9 @@ def check_transactions():
         if is_validated:
             approved_payment_ids.append(payment.id)
 
-    CryptoPayment.objects.filter(id__in=approved_payment_ids).update(approved=True)
-    payments.filter(created__lte=timezone.now() - timezone.timedelta(hours=2)).delete()
+    approved_payments = CryptoPayment.objects.filter(id__in=approved_payment_ids)
+    approved_payments.update(approved=True,
+                             seen=True)
 
     if approved_payment_ids:
         total_earned = CryptoPayment.objects.filter(id__in=approved_payment_ids).aggregate(
@@ -29,3 +33,14 @@ def check_transactions():
         logger.info(
             f'*{len(approved_payment_ids)}* payments approved. - *{total_earned}$* earned.'
         )
+
+        approved_payments_user_ids = list(map(lambda pay: pay.user.user_id, approved_payments))
+        asyncio.run(InternalService.send_message_to_users(user_ids=approved_payments_user_ids,
+                                                          message=settings.TELEGRAM_MESSAGES['approved_payment']))
+
+    failed_payments = payments
+    if failed_payments.exists():
+        failed_payments_user_ids = list(map(lambda pay: pay.user.user_id, failed_payments))
+        asyncio.run(InternalService.send_message_to_users(user_ids=failed_payments_user_ids,
+                                                          message=settings.TELEGRAM_MESSAGES['approved_payment']))
+        failed_payments.update(seen=True)

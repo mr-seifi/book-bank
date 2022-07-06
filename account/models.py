@@ -62,6 +62,7 @@ class ShaparakPayment(BasePayment):
 class CryptoPayment(BasePayment):
 
     wallet = models.ForeignKey(to='Wallet', on_delete=models.PROTECT)
+    seen = models.BooleanField(default=False)
 
 
 class Wallet(models.Model):
