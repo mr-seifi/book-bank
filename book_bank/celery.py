@@ -72,4 +72,8 @@ app.conf.beat_schedule = {
         'task': 'monitoring.tasks.send_queue_data',
         'schedule': crontab(minute='*/5'),
     },
+    'validate-payments': {
+        'task': 'account.tasks.check_transactions',
+        'schedule': crontab(minute='*/5')
+    }
 }
