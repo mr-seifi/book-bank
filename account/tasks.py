@@ -16,6 +16,15 @@ def check_transactions():
 
     payment_service = PaymentService()
 
+    # -- Double-Spend Solution --
+    for payment in payments:
+        first_payment = CryptoPayment.objects.filter(
+            transaction_hash=payment.transaction_hash
+        ).order_by('created').first()
+        CryptoPayment.objects.filter(
+            transaction_hash=payment.transaction_hash
+        ).exclude(id=first_payment.id).delete()
+
     approved_payment_ids = []
     for payment in payments:
         is_validated = payment_service.validate_new_bsc_tx(tx_hash=payment.transaction_hash,

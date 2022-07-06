@@ -120,12 +120,8 @@ class PaymentService:
     @classmethod
     def validate_new_bsc_tx(cls, tx_hash, price) -> bool:
         if CryptoPayment.objects.filter(transaction_hash=tx_hash,
-                                        approved=True).exists():
+                                        approved=True).exists() or \
+                CryptoPayment.objects.filter(transaction_hash=tx_hash).count() > 1:
             return False
-
-        if CryptoPayment.objects.filter(transaction_hash=tx_hash).count() > 1:
-            first_payment = CryptoPayment.objects.filter(transaction_hash=tx_hash).order_by('created').first()
-            CryptoPayment.objects.filter(transaction_hash=tx_hash).exclude(id=first_payment.id).delete()
-
         return cls._validate_bsc_tx(tx_hash=tx_hash,
                                     minimum_price=price + 0.5)
