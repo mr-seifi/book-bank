@@ -286,7 +286,8 @@ class Search:
                 title=book.title,
                 input_message_content=InputTextMessageContent(f'/download {book.md5}'),
                 thumb_url=book.cover_url,
-                description=f'{book.year}-{book.extension}-{book.filesize // 1000000}MB\n'
+                description=f'{book.year + "-" if book.year else ""}{book.extension + "-" if book.extension else ""}'
+                            f'{(book.filesize // 1000000) + 1}MB\n'
                             f'{book.authors}\n{book.publisher}\n{book.description}'
             ) for book in Book.objects.filter(document__exact=query).exclude(title__exact='').order_by('document')[:25]
         ]
