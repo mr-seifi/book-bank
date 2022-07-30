@@ -98,7 +98,8 @@ class InternalService:
     async def forward_file(context, file_id, to):
         response = await context.bot.forward_message(chat_id=to,
                                                      from_chat_id=TELEGRAM_FILES_CHANNEL,
-                                                     message_id=file_id)
+                                                     message_id=file_id,
+                                                     protect_content=True)
         return response
 
     @staticmethod
