@@ -135,7 +135,7 @@ TELEGRAM_MESSAGES = {
     'error': 'اوه اوه، نگفتم داستان میشه، چ کنیم حالا؟!!\n'
              '*{ex}*',
     'waiting_for_download': 'چند لحظه صبر کن تا برات پیداش کنم',
-    'redirect_url': '*{title}* {authors} {publisher} {extension} {size} MB'
+    'redirect_url': '*{title}* {authors} {publisher} {extension} {size} MB\n'
                     'برای دانلود کتابت، روی این '
                     '[لینک]({url})'
                     ' کلیک کن.',
