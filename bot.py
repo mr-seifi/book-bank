@@ -337,11 +337,10 @@ class Search:
                                             f' from link\.')
             await message.reply_text(
                 settings.TELEGRAM_MESSAGES['redirect_url'].format(title=book.title[:100],
-                                                                  year=book.year,
                                                                   extension=book.extension,
                                                                   authors=book.authors[:50],
                                                                   publisher=book.publisher[:50],
-                                                                  description=book.description[:250],
+                                                                  size=(book.filesize // 1000000) + 1,
                                                                   url=RedirectService().generate_redirect_url(book)),
                 parse_mode=ParseMode.MARKDOWN
             )

@@ -135,8 +135,8 @@ TELEGRAM_MESSAGES = {
     'error': 'اوه اوه، نگفتم داستان میشه، چ کنیم حالا؟!!\n'
              '*{ex}*',
     'waiting_for_download': 'چند لحظه صبر کن تا برات پیداش کنم',
-    'redirect_url': '*{title}*\n_{year}-{extension}_\n{authors}-{publisher}\n\n{description}\n\n'
-                    'برای دانلود کتاب، روی این '
+    'redirect_url': '*{title}* {authors} {publisher} {extension} {size} MB'
+                    'برای دانلود کتابت، روی این '
                     '[لینک]({url})'
                     ' کلیک کن.',
     'limited_download': f'شرمنده ولی تا آخر امروز بیش‌تر از این نمی‌تونی از من کتاب دانلود کنی.',
