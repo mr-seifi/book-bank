@@ -173,7 +173,7 @@ class LibgenService:
 
     @classmethod
     def get_book_identifier(cls, book: dict) -> str:
-        return slugify('{} {} {} {}'.format(book['title'], book['publisher'], book['year'], 'pdfbaz'))
+        return slugify('{} {} {} {}'.format(book['title'], book['publisher'], book['year'], 'bookbank'))
 
     @staticmethod
     def split_authors(authors: str) -> list:
