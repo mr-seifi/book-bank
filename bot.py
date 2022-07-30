@@ -40,11 +40,12 @@ class Main:
             ]
         ]
         if not user.plan:
-            keyboard += [
-                [
-                    InlineKeyboardButton('خرید اشتراک ویژه', callback_data='PAYMENT')
-                ]
-            ]
+            # keyboard += [
+            #     [
+            #         InlineKeyboardButton('خرید اشتراک ویژه', callback_data='PAYMENT')
+            #     ]
+            # ]
+            pass
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await message.reply_photo(
