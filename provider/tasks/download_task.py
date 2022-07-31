@@ -1,4 +1,6 @@
 import requests
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
 from store.models import Book
 from ..services.zlib_service import ZLibService
 from ..services.libgen_service import LibgenService
@@ -33,13 +35,21 @@ async def download_book(book: Book, context, user):
 
             del result
 
+    keyboard = [
+        [
+            InlineKeyboardButton('جستجوی کتاب', switch_inline_query_current_chat='')
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     if book.cover:
         message_id = await InternalService.send_file(context=context, file=content, filename=filename,
-                                                     thumb=book.cover,
+                                                     thumb=book.cover, reply_markup=reply_markup,
                                                      description=f'*{book.title}*\n{book.description}'[:500]
                                                                  + f'...\n\n#{book.topic}\n@BookBank_RoBot')
     else:
         message_id = await InternalService.send_file(context=context, file=content, filename=filename,
+                                                     reply_markup=reply_markup,
                                                      description=f'*{book.title}*\n{book.description}'[:500]
                                                                  + f'...\n\n#{book.topic}\n@BookBank_RoBot')
 
