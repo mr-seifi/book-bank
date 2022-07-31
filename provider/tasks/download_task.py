@@ -37,7 +37,7 @@ async def download_book(book: Book, context, user):
 
     keyboard = [
         [
-            InlineKeyboardButton('جستجوی کتاب', switch_inline_query_current_chat='')
+            InlineKeyboardButton('جستجوی کتاب', switch_inline_query='')
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
