@@ -105,6 +105,18 @@ class Main:
 
         return 1
 
+    @classmethod
+    async def help(cls, update: Update, context: CallbackContext):
+        message = update.message
+        user_id = message.from_user.id
+
+        await message.reply_video(
+            'help.MP4',
+            caption=settings.TELEGRAM_MESSAGES['help']
+        )
+
+        return 1
+
 
 class Payment:
 
@@ -378,10 +390,12 @@ def main():
         fallbacks=[CommandHandler('start', Main.start)]
     )
     download_handler = CommandHandler('download', Search.download)
+    help_handler = CommandHandler('help', Main.help)
 
     # application.add_handler(start_handler)
     application.add_handler(menu_handler)
     application.add_handler(download_handler)
+    application.add_handler(help_handler)
     application.add_handler(InlineQueryHandler(Search.download_inline))
 
     # Start the Bot
