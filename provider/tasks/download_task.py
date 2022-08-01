@@ -35,21 +35,13 @@ async def download_book(book: Book, context, user):
 
             del result
 
-    keyboard = [
-        [
-            InlineKeyboardButton('استفاده از بات', url='https://t.me/bookbank_robot?start=start')
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
     if book.cover:
         message_id = await InternalService.send_file(context=context, file=content, filename=filename,
-                                                     thumb=book.cover, reply_markup=reply_markup,
+                                                     thumb=book.cover,
                                                      description=f'*{book.title}*\n{book.description}'[:500]
                                                                  + f'...\n\n#{book.topic}\n@BookBank_RoBot')
     else:
         message_id = await InternalService.send_file(context=context, file=content, filename=filename,
-                                                     reply_markup=reply_markup,
                                                      description=f'*{book.title}*\n{book.description}'[:500]
                                                                  + f'...\n\n#{book.topic}\n@BookBank_RoBot')
 

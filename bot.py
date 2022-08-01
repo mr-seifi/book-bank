@@ -33,6 +33,11 @@ class Main:
                                 username=user.username,
                                 fullname=user.full_name)
 
+            await message.reply_video(
+                'help.MP4',
+                caption=settings.TELEGRAM_MESSAGES['first_help']
+            )
+
         user = User.objects.get(user_id=user.id)
         keyboard = [
             [
