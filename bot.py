@@ -28,15 +28,13 @@ class Main:
         message = update.message
         user = message.from_user
 
+        first_usage = False
         if not User.objects.filter(user_id=user.id).exists():
             User.objects.create(user_id=user.id,
                                 username=user.username,
                                 fullname=user.full_name)
 
-            await message.reply_video(
-                'help.MP4',
-                caption=settings.TELEGRAM_MESSAGES['first_help']
-            )
+            first_usage = True
 
         user = User.objects.get(user_id=user.id)
         keyboard = [
@@ -59,6 +57,12 @@ class Main:
             reply_markup=reply_markup,
             parse_mode=ParseMode.MARKDOWN_V2,
         )
+
+        if first_usage:
+            await message.reply_video(
+                'help.MP4',
+                caption=settings.TELEGRAM_MESSAGES['first_help']
+            )
 
         return settings.STATES['start']
 
