@@ -38,7 +38,7 @@ class Main:
 
         try:
             md5 = context.args[0]
-            return Search.download(update, context)
+            return await Search.download(update, context)
         except IndexError:
             pass
         except TypeError:
