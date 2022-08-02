@@ -36,6 +36,12 @@ class Main:
 
             first_usage = True
 
+        try:
+            md5 = context.args[0]
+            return Search.download(update, context)
+        except TypeError:
+            pass
+
         user = User.objects.get(user_id=user.id)
         keyboard = [
             [
@@ -67,7 +73,7 @@ class Main:
         return settings.STATES['start']
 
     @staticmethod
-    async def check_verification(message):
+    async def check_verification(message, md5):
         user_id = message.from_user.id
 
         verified = InternalService.is_user_verified(user_id=user_id)
@@ -79,6 +85,13 @@ class Main:
                     InlineKeyboardButton(text=advertiser.channel_name,
                                          url=f'https://t.me/{advertiser.channel_id}')
                 ] for advertiser in advertisers
+            ]
+
+            keyboard += [
+                [
+                    InlineKeyboardButton(text='عضو شدم!',
+                                         url=f'https://t.me/bookbank_robot?start={md5}')
+                ]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -324,7 +337,12 @@ class Search:
         user_id = message.from_user.id
         user = User.objects.get(user_id=user_id)
 
-        verified = await Main.check_verification(message=message)
+        try:
+            md5 = context.args[0]
+        except TypeError:
+            return
+
+        verified = await Main.check_verification(message=message, md5=md5)
         if not verified and not user.plan:
             return
 
@@ -336,13 +354,14 @@ class Search:
             )
             return
 
-        md5 = context.args[0]
-
         await message.reply_text(
             settings.TELEGRAM_MESSAGES['waiting_for_download']
         )
 
-        book = Book.objects.get(md5=md5)
+        try:
+            book = Book.objects.get(md5=md5)
+        except Book.DoesNotExist:
+            return
 
         if book.file:
             message_id = book.file
