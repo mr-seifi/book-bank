@@ -39,6 +39,8 @@ class Main:
         try:
             md5 = context.args[0]
             return Search.download(update, context)
+        except IndexError:
+            pass
         except TypeError:
             pass
 
@@ -339,6 +341,8 @@ class Search:
 
         try:
             md5 = context.args[0]
+        except IndexError:
+            return
         except TypeError:
             return
 
