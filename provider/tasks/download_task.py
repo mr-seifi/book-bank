@@ -1,6 +1,6 @@
 import requests
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
+from django.conf import settings
 from store.models import Book
 from ..services.zlib_service import ZLibService
 from ..services.libgen_service import LibgenService
@@ -23,13 +23,21 @@ async def download_book(book: Book, context, user):
 
     async with ClientSession() as session:
         try:
-            content = await zlib_service.download_book(book.md5, session)
             await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {filename}'
                                                      f' from ZLIB.')
+            content = await zlib_service.download_book(book.md5, session)
         except Exception as ex:
             asyncio.create_task(InternalService.send_error(context, ex))
             await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {filename}'
                                                      f' from LIBGEN!')
+
+            if not book.download_url:
+                asyncio.create_task(
+                    InternalService.send_message_to_users([user_id], message=settings.TELEGRAM_MESSAGES['cannot_find'])
+                )
+
+                return
+
             result = await session.get(book.download_url)
             content = await result.read()
 
