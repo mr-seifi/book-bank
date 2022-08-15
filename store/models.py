@@ -148,4 +148,5 @@ class Book(models.Model):
             self.cover.name = f'{self.slug}.{cover_extension}'
         if self.topic:
             self.topic = slugify(self.topic.replace('\\', ' '))
+        self.md5 = self.md5.lower()
         super(Book, self).save(*args, **kwargs)
