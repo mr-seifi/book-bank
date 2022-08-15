@@ -162,4 +162,4 @@ class InternalService:
 
     @staticmethod
     def markdown_escape(text: str) -> str:
-        return text.replace('_', '\_').replace('.', '\.').replace('!', '\!')
+        return text.replace('_', ' ')

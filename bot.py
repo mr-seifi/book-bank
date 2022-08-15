@@ -377,7 +377,8 @@ class Search:
                                                to=user_id)
         elif book.filesize >= settings.DOWNLOAD_LIMIT_SIZE:
             await InternalService.send_info(context,
-                                            f'[{user.fullname}](tg://user?id={user.user_id}) is getting {book.title}'
+                                            f'[{user.fullname}](tg://user?id={user.user_id}) is getting '
+                                            f'{InternalService.markdown_escape(book.title)}'
                                             f' from link.')
             await message.reply_text(
                 settings.TELEGRAM_MESSAGES['redirect_url'].format(title=InternalService.markdown_escape(book.title[:100]),
@@ -386,7 +387,7 @@ class Search:
                                                                   publisher=InternalService.markdown_escape(book.publisher[:50]),
                                                                   size=(book.filesize // 1000000) + 1,
                                                                   url=RedirectService().generate_redirect_url(book)),
-                parse_mode=ParseMode.MARKDOWN_V2
+                parse_mode=ParseMode.MARKDOWN
             )
 
         else:
