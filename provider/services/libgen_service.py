@@ -42,7 +42,11 @@ class LibgenService:
     def __init__(self):
         if not hasattr(self, 'conn') or not getattr(self, 'conn'):
             from secret import MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, MYSQL_HOST
-            self.conn = connect(user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB, host=MYSQL_HOST)
+            try:
+                self.conn = connect(user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB, host=MYSQL_HOST)
+            except ProgrammingError:
+                self.recreate_database()
+                self.conn = connect(user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB, host=MYSQL_HOST)
 
     def _get_cursor(self):
         try:
