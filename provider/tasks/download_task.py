@@ -23,12 +23,14 @@ async def download_book(book: Book, context, user):
 
     async with ClientSession() as session:
         try:
-            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {filename}'
+            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting '
+                                                     f'{InternalService.markdown_escape(filename)}'
                                                      f' from ZLIB.')
             content = await zlib_service.download_book(book.md5, session)
         except Exception as ex:
             asyncio.create_task(InternalService.send_error(context, ex))
-            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting {filename}'
+            await InternalService.send_info(context, f'[{user.full_name}](tg://user?id={user.id}) is getting '
+                                                     f'{InternalService.markdown_escape(filename)}'
                                                      f' from LIBGEN!')
 
             if not book.download_url:
