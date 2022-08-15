@@ -45,8 +45,15 @@ class LibgenService:
             try:
                 self.conn = connect(user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB, host=MYSQL_HOST)
             except ProgrammingError:
-                self.recreate_database()
+                self._create_db()
                 self.conn = connect(user=MYSQL_USER, password=MYSQL_PASSWORD, database=MYSQL_DB, host=MYSQL_HOST)
+
+    @staticmethod
+    def _create_db():
+        from secret import MYSQL_USER, MYSQL_PASSWORD, MYSQL_DB, MYSQL_HOST
+        conn = connect(user=MYSQL_USER, password=MYSQL_PASSWORD, host=MYSQL_HOST)
+        cursor = conn.cursor()
+        cursor.execute(f'CREATE DATABASE {MYSQL_DB}')
 
     def _get_cursor(self):
         try:
