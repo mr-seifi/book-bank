@@ -386,7 +386,7 @@ class Search:
                                                                   publisher=InternalService.markdown_escape(book.publisher[:50]),
                                                                   size=(book.filesize // 1000000) + 1,
                                                                   url=RedirectService().generate_redirect_url(book)),
-                parse_mode=ParseMode.MARKDOWN
+                parse_mode=ParseMode.MARKDOWN_V2
             )
 
         else:
