@@ -18,7 +18,7 @@ class InternalService:
                    base_url='http://0.0.0.0:8081/bot')
 
     @staticmethod
-    async def _send_message(context, message, to, **kwargs):
+    async def _send_message(context, message, to):
         bot = None
         if not context:
             bot = InternalService.get_bot()
@@ -26,17 +26,17 @@ class InternalService:
         if bot:
             response = await bot.send_message(chat_id=to,
                                               text=message,
-                                              **kwargs)
+                                              parse_mode=ParseMode.MARKDOWN)
             return response.message_id
 
         try:
             response = await context.bot.send_message(chat_id=to,
                                                       text=message,
-                                                      **kwargs)
+                                                      parse_mode=ParseMode.MARKDOWN)
         except RuntimeError:
             response = await context.send_message(chat_id=to,
                                                   text=message,
-                                                  **kwargs)
+                                                  parse_mode=ParseMode.MARKDOWN)
         return response.message_id
 
     @staticmethod
@@ -53,19 +53,17 @@ class InternalService:
         return response.message_id
 
     @classmethod
-    async def send_info(cls, context, info, **kwargs):
+    async def send_info(cls, context, info):
         response = await cls._send_message(context=context,
                                            message=settings.TELEGRAM_MESSAGES['info'].format(info=str(info)),
-                                           to=TELEGRAM_INFO_GROUP,
-                                           **kwargs)
+                                           to=TELEGRAM_INFO_GROUP)
         return response
 
     @classmethod
     async def send_warning(cls, context, warning):
         response = await cls._send_message(context=context,
                                            message=settings.TELEGRAM_MESSAGES['warning'].format(warning=str(warning)),
-                                           to=TELEGRAM_WARNING_GROUP,
-                                           parse_mode=ParseMode.MARKDOWN)
+                                           to=TELEGRAM_WARNING_GROUP)
         return response
 
     @classmethod
@@ -161,3 +159,7 @@ class InternalService:
         [await bot.send_message(chat_id=user_id,
                                 text=message,
                                 parse_mode=ParseMode.MARKDOWN) for user_id in user_ids]
+
+    @staticmethod
+    def markdown_escape(text: str) -> str:
+        return text.replace('_', ' ')
